@@ -1,6 +1,10 @@
+const config = {"target": document.getElementById("target")}
+
 const numberOfCells           = 64;
 const numberOfEachStones      = numberOfCells/2;
 const numberOfCellsPerEachRow = Math.sqrt(numberOfCells);
+
+let facilitator = null;
 
 class Facilitator{
     constructor(users, board){
@@ -46,8 +50,9 @@ class Facilitator{
 }
 
 class User{
-    constructor(name, stones, stoneColor){
+    constructor(name, isAI, stones, stoneColor){
         this.name       = name;
+        this.isAI       = isAI;
         this.stones     = stones;
         this.stoneColor = stoneColor;
     }
@@ -59,6 +64,10 @@ class User{
     // 石をひっくり返す
     reverseStones(board, col, row){}
     // getCellsUserCanPutAStone(board){}
+    // AIだったらtrue
+    AI(){
+        return this.isAI == 1;
+    }
 }
 
 class Board{
@@ -117,28 +126,105 @@ class UserBuilder{}
 class BoardBuilder{}
 class CellBuilder{}
 
-let blackStones = [];
-for(let i = 0; i < numberOfEachStones; i++){
-    blackStones.push(new Stone("black"));
+// トップページをレンダリングするファンクション
+let displayTopPage = () => {
+    config.target.innerHTML =
+    `
+    <div class="row align-middle">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                <h2>オセロゲーム</h2>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-2 text-center" style="margin:0 auto;">
+                <form id="signup">
+                    <button type="button" class="btn btn-primary col-12" onclick='displayUserRegisterPage();return false;'>ユーザー対戦</button>
+                    <button type="button" class="btn btn-primary col-12" onclick='displayAIRegisterPage();return false;'>AI対戦</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    `
 }
 
-let whtieStones = [];
-for(let i = 0; i < numberOfEachStones; i++){
-    whtieStones.push(new Stone("whtie"));
+// ユーザー登録画面を表示するファンクション
+let displayUserRegisterPage = () => {
+    config.target.innerHTML =
+    `
+    <div class="row align-middle">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                <h2>ログイン</h2>
+            </div>
+            <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                <form id="signup">
+                    <div class="form-group">
+                        <input type="text" name="userName1" class="form-control" id="input-user-name1" placeholder="ユーザーネーム" value="">
+                        <input type="hidden" name="userType1" id="input-user-type1" value=0>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="userName2" class="form-control" id="input-user-name2" placeholder="ユーザーネーム" value="">
+                        <input type="hidden" name="userType2" id="input-user-type2" value=0>
+                    </div>
+                    <button type="submit" class="btn btn-primary col-12" onclick='alert("coming soon");return false;'>登録してゲームスタート</button>
+                    <button type="button" class="btn btn-primary col-12" onclick='displayTopPage();return false;'>戻る</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    `
 }
 
-let users = [new User("user1", blackStones, "black"), new User("user2", whtieStones, "white")];
-
-let cells = [];
-for(let i = 0; i < numberOfCellsPerEachRow; i++){
-    let tmp = [];
-    for(let j = 0; j < numberOfCellsPerEachRow; j++){
-        tmp.push(new Cell(i,j));
-    }
-    cells.push(tmp);
+let displayAIRegisterPage = () => {
+    config.target.innerHTML =
+    `
+    <div class="row align-middle">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                <h2>ログイン</h2>
+            </div>
+            <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                <form id="signup">
+                    <div class="form-group">
+                        <input type="text" name="userName1" class="form-control" id="input-user-name1" placeholder="ユーザーネーム" value="">
+                        <input type="hidden" name="userType1" id="input-user-type1" value=0>
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" name="userName2" class="form-control" id="input-user-name2" placeholder="ユーザーネーム" value="">
+                        <input type="hidden" name="userType2" id="input-user-type2" value=1>
+                    </div>
+                    <button type="submit" class="btn btn-primary col-12" onclick='alert("coming soon");return false;'>登録してゲームスタート</button>
+                    <button type="button" class="btn btn-primary col-12" onclick='displayTopPage();return false;'>戻る</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    `
 }
-let board = new Board(cells);
 
-let facilitator = new Facilitator(users, board);
+displayTopPage();
 
-console.log(facilitator);
+
+// mainPageに遷移したときに↓のインスタンスを作る
+// let blackStones = [];
+// for(let i = 0; i < numberOfEachStones; i++){
+//     blackStones.push(new Stone("black"));
+// }
+
+// let whtieStones = [];
+// for(let i = 0; i < numberOfEachStones; i++){
+//     whtieStones.push(new Stone("whtie"));
+// }
+
+// let users = [new User("user1", 0, blackStones, "black"), new User("user2", 0, whtieStones, "white")];
+
+// let cells = [];
+// for(let i = 0; i < numberOfCellsPerEachRow; i++){
+//     let tmp = [];
+//     for(let j = 0; j < numberOfCellsPerEachRow; j++){
+//         tmp.push(new Cell(i,j));
+//     }
+//     cells.push(tmp);
+// }
+// let board = new Board(cells);
+
+// let facilitator = new Facilitator(users, board);
