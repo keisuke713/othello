@@ -1,4 +1,6 @@
-const config = {"target": document.getElementById("target")}
+const config = {
+    "target": document.getElementById("target")
+}
 
 const numberOfCells           = 64;
 const numberOfEachStones      = numberOfCells/2;
@@ -122,12 +124,47 @@ class Stone{
     }
 }
 
-class UserBuilder{}
-class BoardBuilder{}
-class CellBuilder{}
+class UsersBuilder{
+    static createUsers(user1Name, user1Type, user2Name, user2Type){
+        return [
+            new User(user1Name, user1Type, StonesBuilder.createStones("black"), "black"), 
+            new User(user2Name, user2Type, StonesBuilder.createStones("white"), "white")
+        ];
+    }
+}
+
+class BoardBuilder{
+    static createBoard(cells){
+        return new Board(cells);
+    }
+}
+
+class CellsBuilder{
+    static createCells(){
+        let cells = [];
+        for(let i = 0; i < numberOfCellsPerEachRow; i++){
+            let tmp = [];
+            for(let j = 0; j < numberOfCellsPerEachRow; j++){
+                tmp.push(new Cell(i, j));
+            }
+            cells.push(tmp);
+        }
+        return cells;
+    }
+}
+
+class StonesBuilder{
+    static createStones(color){
+        let stones = [];
+        for(let i = 0; i < numberOfEachStones - 2; i++){
+            stones.push(new StonesBuilder(color));
+        }
+        return stones;
+    }
+}
 
 // トップページをレンダリングするファンクション
-let displayTopPage = () => {
+const displayTopPage = () => {
     config.target.innerHTML =
     `
     <div class="row align-middle">
@@ -146,8 +183,8 @@ let displayTopPage = () => {
     `
 }
 
-// ユーザー登録画面を表示するファンクション
-let displayUserRegisterPage = () => {
+// ユーザー登録画面を表示するファンクション(User同士の対戦)
+const displayUserRegisterPage = () => {
     config.target.innerHTML =
     `
     <div class="row align-middle">
@@ -165,7 +202,7 @@ let displayUserRegisterPage = () => {
                         <input type="text" name="userName2" class="form-control" id="input-user-name2" placeholder="ユーザーネーム" value="">
                         <input type="hidden" name="userType2" id="input-user-type2" value=0>
                     </div>
-                    <button type="submit" class="btn btn-primary col-12" onclick='alert("coming soon");return false;'>登録してゲームスタート</button>
+                    <button type="submit" class="btn btn-primary col-12" onclick='initialGame();return false;'>登録してゲームスタート</button>
                     <button type="button" class="btn btn-primary col-12" onclick='displayTopPage();return false;'>戻る</button>
                 </form>
             </div>
@@ -174,7 +211,8 @@ let displayUserRegisterPage = () => {
     `
 }
 
-let displayAIRegisterPage = () => {
+// ユーザー登録画面を表示するファンクション(AIとの対戦)
+const displayAIRegisterPage = () => {
     config.target.innerHTML =
     `
     <div class="row align-middle">
@@ -189,10 +227,10 @@ let displayAIRegisterPage = () => {
                         <input type="hidden" name="userType1" id="input-user-type1" value=0>
                     </div>
                     <div class="form-group">
-                        <input type="hidden" name="userName2" class="form-control" id="input-user-name2" placeholder="ユーザーネーム" value="">
+                        <input type="hidden" name="userName2" class="form-control" id="input-user-name2" placeholder="ユーザーネーム" value="AI">
                         <input type="hidden" name="userType2" id="input-user-type2" value=1>
                     </div>
-                    <button type="submit" class="btn btn-primary col-12" onclick='alert("coming soon");return false;'>登録してゲームスタート</button>
+                    <button type="submit" class="btn btn-primary col-12" onclick='initialGame();return false;'>登録してゲームスタート</button>
                     <button type="button" class="btn btn-primary col-12" onclick='displayTopPage();return false;'>戻る</button>
                 </form>
             </div>
@@ -201,30 +239,23 @@ let displayAIRegisterPage = () => {
     `
 }
 
+// 各インスタンス作成、ボードのHtml作成、石を2こずつ配置
+const initialGame = () => {
+    const user1Name = document.getElementById("input-user-name1").value;
+    const user1Type = Number(document.getElementById("input-user-type1").value);
+    const user2Name = document.getElementById("input-user-name2").value;
+    const user2Type = Number(document.getElementById("input-user-type2").value);
+
+    let users = UsersBuilder.createUsers(user1Name, user1Type, user2Name, user2Type);
+    let board = BoardBuilder.createBoard(CellsBuilder.createCells());
+
+    facilitator = new Facilitator(users, board);
+
+    // まずはhtmlを作るんご
+    // html作成
+    // 石を配置
+    // stoneのインスタンスにも石を置く
+    // 得点板を更新
+}
+
 displayTopPage();
-
-
-// mainPageに遷移したときに↓のインスタンスを作る
-// let blackStones = [];
-// for(let i = 0; i < numberOfEachStones; i++){
-//     blackStones.push(new Stone("black"));
-// }
-
-// let whtieStones = [];
-// for(let i = 0; i < numberOfEachStones; i++){
-//     whtieStones.push(new Stone("whtie"));
-// }
-
-// let users = [new User("user1", 0, blackStones, "black"), new User("user2", 0, whtieStones, "white")];
-
-// let cells = [];
-// for(let i = 0; i < numberOfCellsPerEachRow; i++){
-//     let tmp = [];
-//     for(let j = 0; j < numberOfCellsPerEachRow; j++){
-//         tmp.push(new Cell(i,j));
-//     }
-//     cells.push(tmp);
-// }
-// let board = new Board(cells);
-
-// let facilitator = new Facilitator(users, board);
