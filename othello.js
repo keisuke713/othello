@@ -1,10 +1,19 @@
-const config = {
-    "target": document.getElementById("target")
+class Config{
+    constructor(target, numberOfCells){
+        this.target        = target;
+        this.numberOfCells = numberOfCells;
+    }
+
+    getNumberOfEachStones(){
+        return this.numberOfCells / 2;
+    }
+
+    getNumberOfCellsPerEachRow(){
+        return Math.sqrt(this.numberOfCells);
+    }
 }
 
-const numberOfCells           = 64;
-const numberOfEachStones      = numberOfCells/2;
-const numberOfCellsPerEachRow = Math.sqrt(numberOfCells);
+const config = new Config(document.getElementById("target"), 64);
 
 let facilitator = null;
 
@@ -251,11 +260,13 @@ const initialGame = () => {
 
     facilitator = new Facilitator(users, board);
 
-    // まずはhtmlを作るんご
     // html作成
     // 石を配置
     // stoneのインスタンスにも石を置く
     // 得点板を更新
 }
 
-displayTopPage();
+// displayTopPage();
+
+document.getElementById("a").addEventListener("click", (event) => {
+})
