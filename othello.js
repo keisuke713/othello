@@ -87,17 +87,32 @@ class User{
 }
 
 class Board{
-    constructor(cells){
+    constructor(cells, blackStones, whiteStones){
+        console.log(cells)
         this.cells = cells;
         this.amountOfBlackStone = 0;
         this.amountOfWhiteStone = 0;
+        this.setInitialStones(blackStones, whiteStones);
     }
 
     // 既に石が置かれているかどうか
-    ifAStoneIsOnTheCell(col, row){}
+    ifAStoneIsOnTheCell(col, row){
+        return this.getCell(col, row).isStoneOn();
+    }
     getAmountOfStones(color){}
     isThereAnyCellUserCanPutAStone(user){}
     isAllCellPutAStone(){}
+
+    setInitialStones(blackStones, whiteStones){
+        for(let i = 0; i < this.getNumberOfCellsPerEachRow(); i++){
+            for(let j = 0; j < this.getNumberOfCellsPerEachRow(); j++){
+                if(i == this.getNumberOfCellsPerEachRow() / 2 - 1 && j == this.getNumberOfCellsPerEachRow() / 2 - 1) this.getCell(i, j).setStone(blackStones.pop())
+                if(i == this.getNumberOfCellsPerEachRow() / 2 && j == this.getNumberOfCellsPerEachRow() / 2) this.getCell(i, j).setStone(blackStones.pop())
+                if(i == this.getNumberOfCellsPerEachRow() / 2 - 1 && j == this.getNumberOfCellsPerEachRow() / 2) this.getCell(i, j).setStone(whiteStones.pop())
+                if(i == this.getNumberOfCellsPerEachRow() / 2 && j == this.getNumberOfCellsPerEachRow() / 2 - 1) this.getCell(i, j).setStone(whiteStones.pop())
+            }
+        }
+    }
 
     getNumberOfEachStones(){
         return this.cells.length ** 2 / 2;
@@ -118,9 +133,18 @@ class Cell{
     }
 
     // 既に石が置かれているかどうか
-    isStoneOn(){}
-    isStoneBlack(){}
-    isStoneWhite(){}
+    isStoneOn(){
+        return this.stone != null;
+    }
+    isStoneBlack(){
+        this.stone == null || this.stone.isWhite() ? false : true;
+    }
+    isStoneWhite(){
+        this.stone == null || this.stone.isBlack() ? false : true;
+    }
+    setStone(stone){
+        this.stone = stone;
+    }
 }
 
 class Stone{
@@ -158,8 +182,8 @@ class UsersBuilder{
 }
 
 class BoardBuilder{
-    static createBoard(cells){
-        return new Board(cells);
+    static createBoard(cells, blackStones, whiteStones){
+        return new Board(cells, blackStones, whiteStones);
     }
 }
 
@@ -270,7 +294,7 @@ const initialGame = () => {
     // const user2Name = document.getElementById("input-user-name2").value;
     // const user2Type = Number(document.getElementById("input-user-type2").value);
 
-    let board = BoardBuilder.createBoard(CellsBuilder.createCells());
+    let board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone("black"), new Stone("black")], [new Stone("white"), new Stone("white")]);
     let users = UsersBuilder.createUsers("keisuke", 0, "kesuike", 0);
 
     // facilitator = new Facilitator(users, board);
@@ -295,21 +319,25 @@ const initialGame = () => {
         let tr = document.createElement("tr");
         for(let j=0; j<board.getNumberOfCellsPerEachRow(); j++){
             let td = document.createElement("td");
+            if(board.getCell(i,j).isStoneOn()){
+                let img = document.createElement("img");
+                img.src = board.getCell(i, j).stone.image;
+                td.append(img);
+            }
+            td.dataset.col = i;
+            td.dataset.row = j;
             tr.append(td);
         }
         table.append(tr);
     }
     tableWrapper.append(table);
 
-    console.log(table);
-
     container.append(title);
     container.append(tableWrapper);
     parent.append(container);
+
+    config.target.append(parent)
     // 残りのhtml
-    // console.log(parent);
-    // 石を配置
-    // stoneのインスタンスにも石を置く
     // 得点板を更新
 }
 
