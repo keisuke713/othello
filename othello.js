@@ -88,7 +88,6 @@ class User{
 
 class Board{
     constructor(cells, blackStones, whiteStones){
-        console.log(cells)
         this.cells = cells;
         this.amountOfBlackStone = 0;
         this.amountOfWhiteStone = 0;
@@ -305,6 +304,7 @@ const initialGame = () => {
     let container = document.createElement("div");
     container.classList.add("col-sm-12", "col-md-12", "col-lg-12");
 
+    // タイトル
     let title = document.createElement("div");
     title.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     title.innerHTML =
@@ -312,6 +312,7 @@ const initialGame = () => {
     <h2>オセロゲーム</h2>
     `
 
+    // オセロ盤
     let tableWrapper = document.createElement("div");
     tableWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     let table = document.createElement("table");
@@ -332,8 +333,27 @@ const initialGame = () => {
     }
     tableWrapper.append(table);
 
+    // CurrentPlayer
+    let currentPlayerWrapper = document.createElement("div");
+    currentPlayerWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
+    currentPlayerWrapper.innerHTML =　
+    `
+    <p>Current player: <span id="currentPlayer">keisuke</span></p>
+    `
+    
+
+    // 石の数
+    let numbersOfStonesWrapper = document.createElement("div");
+    numbersOfStonesWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
+    numbersOfStonesWrapper.innerHTML =　
+    `
+    <p><span>${users[0].name}:</span> <span id="numberOfBlackStones">2</span>&nbsp;<span>${users[1].name}:</span> <span id="numberOfBlackStones">2</span></p>
+    `
+
     container.append(title);
     container.append(tableWrapper);
+    container.append(currentPlayerWrapper);
+    container.append(numbersOfStonesWrapper);
     parent.append(container);
 
     config.target.append(parent)
