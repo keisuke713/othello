@@ -98,7 +98,7 @@ class Board{
     ifAStoneIsOnTheCell(col, row){
         return this.getCell(col, row).isStoneOn();
     }
-    getAmountOfStones(color){}
+    // getAmountOfStones(color){}
     isThereAnyCellUserCanPutAStone(user){}
     isAllCellPutAStone(){}
 
@@ -113,6 +113,27 @@ class Board{
         }
     }
 
+    getNumberOfBlackStones(){
+        let count = 0;
+        for(let i=0; i<this.cells.length; i++){
+            for(let j=0; j<this.cells[i].length; j++){
+                console.log(this.getCell(i,j));
+                if(this.getCell(i,j).isStoneBlack()) count++;
+            }
+        }
+        return count;
+    }
+
+    getNumberOfWhiteStones(){
+        let count = 0;
+        for(let i=0; i<this.cells.length; i++){
+            for(let j=0; j<this.cells[i].length; j++){
+                console.log(this.getCell(i,j));
+                if(this.getCell(i,j).isStoneWhite()) count++;
+            }
+        }
+        return count;
+    }
     getNumberOfEachStones(){
         return this.cells.length ** 2 / 2;
     }
@@ -136,10 +157,10 @@ class Cell{
         return this.stone != null;
     }
     isStoneBlack(){
-        this.stone == null || this.stone.isWhite() ? false : true;
+        return this.stone == null || this.stone.isWhite() ? false : true;
     }
     isStoneWhite(){
-        this.stone == null || this.stone.isBlack() ? false : true;
+        return this.stone == null || this.stone.isBlack() ? false : true;
     }
     setStone(stone){
         this.stone = stone;
@@ -340,14 +361,13 @@ const initialGame = () => {
     `
     <p>Current player: <span id="currentPlayer">keisuke</span></p>
     `
-    
 
     // 石の数
     let numbersOfStonesWrapper = document.createElement("div");
     numbersOfStonesWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     numbersOfStonesWrapper.innerHTML =　
     `
-    <p><span>${users[0].name}:</span> <span id="numberOfBlackStones">2</span>&nbsp;<span>${users[1].name}:</span> <span id="numberOfBlackStones">2</span></p>
+    <p><span>${users[0].name}:</span> <span id="numberOfBlackStones">${board.getNumberOfBlackStones()}</span>&nbsp;<span>${users[1].name}:</span> <span id="numberOfBlackStones">${board.getNumberOfWhiteStones()}</span></p>
     `
 
     container.append(title);
@@ -357,8 +377,6 @@ const initialGame = () => {
     parent.append(container);
 
     config.target.append(parent)
-    // 残りのhtml
-    // 得点板を更新
 }
 
 // displayTopPage();
