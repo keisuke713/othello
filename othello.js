@@ -10,6 +10,7 @@ const config = new Config(document.getElementById("target"), 8);
 // let facilitator = null;
 let users       = null;
 let board       = null;
+let cells       = null;
 
 // class Facilitator{
 //     constructor(users, board){
@@ -51,8 +52,8 @@ let board       = null;
 // }
 
 class Users{
-    constructor(user1, user2){
-        this.users = [user1, user2];
+    constructor(firstUser, lastUser){
+        this.users = [firstUser, lastUser];
         this.currentUserIndex   = 0;
     }
     // currentUserを更新
@@ -62,6 +63,12 @@ class Users{
     // インデックスを更新
     updateIndex(){
         this.currentUserIndex = (this.currentUserIndex + 1) & 1;
+    }
+    firstUser(){
+        return this.users[0];
+    }
+    lastUser(){
+        return this.users[1];
     }
 }
 
@@ -74,7 +81,37 @@ class User{
     }
 
     // 該当のセルに石を置けるかどうか
-    canPutAStoneOnTheCell(board, col, row){}
+    // whileの最後にcol,rowを増減させるがここを動的にしたい
+    canPutAStoneOnTheCell(board, col, row, addOrSubCol, addOrSubRow){
+        let ownColor = false;
+        let otherColor = false;
+
+        while(board.getCell(col, row) != undefined && board.getCell(col, row).isStoneOn()){
+            if(this.stoneColor == board.getCell(col, row).stoneColor()){
+                ownColor = true;
+                break;
+            }
+
+            otherColor = true;
+            col = addOrSubCol(col);
+            row = addOrSubRow(row);
+        }
+
+        return ownColor && otherColor;
+        // return this.canPutAStoneOnTheCellHelper(board, col, row, false, false);
+    }
+
+    // 再帰ver
+    // canPutAStoneOnTheCellHelper(board, col, row, ownColor, otherColor){
+    //     if(!(board.getCell(col, row) != undefined && board.getCell(col, row).isStoneOn())) return ownColor && otherColor;
+
+    //     if(this.stoneColor == bo)
+    // }
+
+
+
+
+
     // ユーザーが石をおく
     putAStone(board, col, row){}
     // 石をひっくり返す
@@ -117,7 +154,6 @@ class Board{
         let count = 0;
         for(let i=0; i<this.cells.length; i++){
             for(let j=0; j<this.cells[i].length; j++){
-                console.log(this.getCell(i,j));
                 if(this.getCell(i,j).isStoneBlack()) count++;
             }
         }
@@ -128,7 +164,6 @@ class Board{
         let count = 0;
         for(let i=0; i<this.cells.length; i++){
             for(let j=0; j<this.cells[i].length; j++){
-                console.log(this.getCell(i,j));
                 if(this.getCell(i,j).isStoneWhite()) count++;
             }
         }
@@ -143,6 +178,8 @@ class Board{
     }
 
     getCell(col, row){
+        if(col < 0 || col >= this.getNumberOfCellsPerEachRow()) return;
+        if(row < 0 || col >= this.getNumberOfCellsPerEachRow()) return;
         return this.cells[col][row];
     }
 }
@@ -164,6 +201,9 @@ class Cell{
     }
     setStone(stone){
         this.stone = stone;
+    }
+    stoneColor(){
+        return this.stone.color;
     }
 }
 
@@ -194,10 +234,10 @@ class Stone{
 
 class UsersBuilder{
     static createUsers(user1Name, user1Type, user2Name, user2Type){
-        return [
+        return new Users(
             new User(user1Name, user1Type, StonesBuilder.createStones("black", config.numberOfCellsPerRow ** 2 / 2), "black"), 
             new User(user2Name, user2Type, StonesBuilder.createStones("white", config.numberOfCellsPerRow ** 2 / 2), "white")
-        ];
+        );
     }
 }
 
@@ -314,8 +354,8 @@ const initialGame = () => {
     // const user2Name = document.getElementById("input-user-name2").value;
     // const user2Type = Number(document.getElementById("input-user-type2").value);
 
-    let board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone("black"), new Stone("black")], [new Stone("white"), new Stone("white")]);
-    let users = UsersBuilder.createUsers("keisuke", 0, "kesuike", 0);
+    board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone("black"), new Stone("black")], [new Stone("white"), new Stone("white")]);
+    users = UsersBuilder.createUsers("keisuke1", 0, "kesuike2", 0);
 
     // facilitator = new Facilitator(users, board);
 
@@ -346,6 +386,7 @@ const initialGame = () => {
                 img.src = board.getCell(i, j).stone.image;
                 td.append(img);
             }
+            td.classList.add("cell");
             td.dataset.col = i;
             td.dataset.row = j;
             tr.append(td);
@@ -359,7 +400,7 @@ const initialGame = () => {
     currentPlayerWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     currentPlayerWrapper.innerHTML =　
     `
-    <p>Current player: <span id="currentPlayer">keisuke</span></p>
+    <p>Current player: <span id="currentPlayer">${users.currentUser().name}</span></p>
     `
 
     // 石の数
@@ -367,7 +408,7 @@ const initialGame = () => {
     numbersOfStonesWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     numbersOfStonesWrapper.innerHTML =　
     `
-    <p><span>${users[0].name}:</span> <span id="numberOfBlackStones">${board.getNumberOfBlackStones()}</span>&nbsp;<span>${users[1].name}:</span> <span id="numberOfBlackStones">${board.getNumberOfWhiteStones()}</span></p>
+    <p><span>${users.firstUser().name}:</span> <span id="numberOfBlackStones">${board.getNumberOfBlackStones()}</span>&nbsp;<span>${users.lastUser().name}:</span> <span id="numberOfBlackStones">${board.getNumberOfWhiteStones()}</span></p>
     `
 
     container.append(title);
@@ -382,5 +423,35 @@ const initialGame = () => {
 // displayTopPage();
 initialGame();
 
-document.getElementById("a").addEventListener("click", (event) => {
-})
+cells = document.getElementsByClassName("cell");
+for(let cell of cells){
+    cell.addEventListener("click", () => {
+        const col = Number(cell.dataset.col);
+        const row = Number(cell.dataset.row);
+        if(board.ifAStoneIsOnTheCell(col, row)){
+            alert("既に石が置かれています");
+            return;
+        }
+
+        // 現在のユーザーがそこに石をおいて良いか確認
+        // 左上
+        // 真上
+        if(users.currentUser().canPutAStoneOnTheCell(board, col - 1, row, (amount) => {return amount - 1}, (amount) => {return amount})) alert(`ユーザー:${users.currentUser().name}はこのマスには石を置けます！`);
+        else alert(`ユーザー:${users.currentUser().name}はこのマスには石を置けません！`);
+
+        // 右上
+        // 真左
+        // 真右
+        // 左下
+        // 真下
+        // 右下
+
+
+        // 石を置く
+        // ひっくり返す
+        // 点数更新
+        // ユーザーチェンジ
+    })
+}
+
+// パスボタンを実装
