@@ -254,7 +254,7 @@ class Cell{
 }
 
 class Stone{
-    static reverseData = {
+    static oppositeColorData = {
         "black": {"color": "white", "image": "white.png"},
         "white": {"color": "black", "image": "black.png"}
     }
@@ -283,8 +283,8 @@ class Stone{
     }
     reverse(){
         let tmpColor = this.color;
-        this.color = Stone.reverseData[tmpColor]["color"];
-        this.image = Stone.reverseData[tmpColor]["image"];
+        this.color = Stone.oppositeColorData[tmpColor]["color"];
+        this.image = Stone.oppositeColorData[tmpColor]["image"];
     }
 }
 
