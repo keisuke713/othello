@@ -113,12 +113,10 @@ class User{
         return ownColor && otherColor;
     }
 
-
-
-
-
     // ユーザーが石をおく
-    putAStone(board, col, row){}
+    putAStone(board, col, row){
+        board.getCell(col, row).putAStone(this.stones.pop());
+    }
     // 石をひっくり返す
     reverseStones(board, col, row){}
     // getCellsUserCanPutAStone(board){}
@@ -210,6 +208,9 @@ class Cell{
     stoneColor(){
         return this.stone.color;
     }
+    putAStone(stone){
+        this.stone = stone;
+    }
 }
 
 class Stone{
@@ -270,7 +271,7 @@ class StonesBuilder{
     static createStones(color, numberOfStones){
         let stones = [];
         for(let i = 0; i < numberOfStones - 2; i++){
-            stones.push(new StonesBuilder(color));
+            stones.push(new Stone(color));
         }
         return stones;
     }
@@ -445,6 +446,11 @@ for(let cell of cells){
         }
 
         // 石を置く
+        users.currentUser().putAStone(board, col, row);
+        let img = document.createElement("img");
+        img.src = board.getCell(col, row).stone.image;
+        cell.append(img);
+
         // ひっくり返す
         // 点数更新
         // ユーザーチェンジ
