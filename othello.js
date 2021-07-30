@@ -80,11 +80,24 @@ class User{
         this.stoneColor = stoneColor;
     }
 
-    // 該当のセルに石を置けるかどうか
-    // whileの最後にcol,rowを増減させるがここを動的にしたい
-    canPutAStoneOnTheCell(board, col, row, addOrSubCol, addOrSubRow){
+    canPutAStoneOnTheCell(board, col, row){
+        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount - 1})) return true;
+        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount})) return true;
+        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount + 1})) return true;
+        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount}, (amount) => {return amount - 1})) return true;
+        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount}, (amount) => {return amount + 1})) return true;
+        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount - 1})) return true;
+        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount})) return true;
+        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount + 1})) return true;
+        return false;
+    }
+
+    canPutAStoneOnTheCellHelper(board, col, row, addOrSubCol, addOrSubRow){
         let ownColor = false;
         let otherColor = false;
+
+        col = addOrSubCol(col);
+        row = addOrSubRow(row);
 
         while(board.getCell(col, row) != undefined && board.getCell(col, row).isStoneOn()){
             if(this.stoneColor == board.getCell(col, row).stoneColor()){
@@ -98,15 +111,7 @@ class User{
         }
 
         return ownColor && otherColor;
-        // return this.canPutAStoneOnTheCellHelper(board, col, row, false, false);
     }
-
-    // 再帰ver
-    // canPutAStoneOnTheCellHelper(board, col, row, ownColor, otherColor){
-    //     if(!(board.getCell(col, row) != undefined && board.getCell(col, row).isStoneOn())) return ownColor && otherColor;
-
-    //     if(this.stoneColor == bo)
-    // }
 
 
 
@@ -434,18 +439,10 @@ for(let cell of cells){
         }
 
         // 現在のユーザーがそこに石をおいて良いか確認
-        // 左上
-        // 真上
-        if(users.currentUser().canPutAStoneOnTheCell(board, col - 1, row, (amount) => {return amount - 1}, (amount) => {return amount})) alert(`ユーザー:${users.currentUser().name}はこのマスには石を置けます！`);
-        else alert(`ユーザー:${users.currentUser().name}はこのマスには石を置けません！`);
-
-        // 右上
-        // 真左
-        // 真右
-        // 左下
-        // 真下
-        // 右下
-
+        if(!users.currentUser().canPutAStoneOnTheCell(board, col, row)){
+            alert(`User: ${users.currentUser().name}はそのマスに石を置くことはできません!!!`);
+            return;
+        }
 
         // 石を置く
         // ひっくり返す
