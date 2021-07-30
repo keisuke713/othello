@@ -61,7 +61,7 @@ class Users{
         return this.users[this.currentUserIndex];
     }
     // インデックスを更新
-    updateIndex(){
+    changeCurrentUser(){
         this.currentUserIndex = (this.currentUserIndex + 1) & 1;
     }
     firstUser(){
@@ -81,14 +81,14 @@ class User{
     }
 
     canPutAStoneOnTheCell(board, col, row){
-        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount - 1})) return true;
-        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount})) return true;
-        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount + 1})) return true;
-        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount}, (amount) => {return amount - 1})) return true;
-        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount}, (amount) => {return amount + 1})) return true;
-        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount - 1})) return true;
-        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount})) return true;
-        if(users.currentUser().canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount + 1})) return true;
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount - 1})) return true;
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount})) return true;
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount + 1})) return true;
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount}, (amount) => {return amount - 1})) return true;
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount}, (amount) => {return amount + 1})) return true;
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount - 1})) return true;
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount})) return true;
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount + 1})) return true;
         return false;
     }
 
@@ -117,8 +117,48 @@ class User{
     putAStone(board, col, row){
         board.getCell(col, row).putAStone(this.stones.pop());
     }
+
     // 石をひっくり返す
-    reverseStones(board, col, row){}
+    reverseStones(board, col, row){
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount - 1})){
+            this.reverseStonesHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount - 1});
+        }
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount})){
+            this.reverseStonesHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount});
+        };
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount + 1})){
+            this.reverseStonesHelper(board, col, row, (amount) => {return amount - 1}, (amount) => {return amount + 1});
+        };
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount}, (amount) => {return amount - 1})){
+            this.reverseStonesHelper(board, col, row, (amount) => {return amount}, (amount) => {return amount - 1});
+        };
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount}, (amount) => {return amount + 1})){
+            this.reverseStonesHelper(board, col, row, (amount) => {return amount}, (amount) => {return amount + 1});
+        };
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount - 1})){
+            this.reverseStonesHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount - 1});
+        };
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount})){
+            this.reverseStonesHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount});
+        };
+        if(this.canPutAStoneOnTheCellHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount + 1})){
+            this.reverseStonesHelper(board, col, row, (amount) => {return amount + 1}, (amount) => {return amount + 1});
+        };
+    }
+    reverseStonesHelper(board, col, row, addOrSubCol, addOrSubRow){
+        col = addOrSubCol(col);
+        row = addOrSubRow(row);
+
+        while(board.getCell(col, row) != undefined && board.getCell(col, row).isStoneOn && this.stoneColor != board.getCell(col, row).stone.color){
+            board.getCell(col, row).stone.reverse();
+
+            let img = document.getElementById(`col${col}-row${row}`).childNodes[0];
+            img.src = board.getCell(col, row).stone.image;
+
+            col = addOrSubCol(col);
+            row = addOrSubRow(row);
+        }
+    }
     // getCellsUserCanPutAStone(board){}
     // AIだったらtrue
     AI(){
@@ -214,6 +254,11 @@ class Cell{
 }
 
 class Stone{
+    static reverseData = {
+        "black": {"color": "white", "image": "white.png"},
+        "white": {"color": "black", "image": "black.png"}
+    }
+
     constructor(color){
         this.color = color;
         this.image = this.initialImage();
@@ -235,6 +280,11 @@ class Stone{
     turnIntoWhite(){
         this.color = "white";
         this.image = "white.png";
+    }
+    reverse(){
+        let tmpColor = this.color;
+        this.color = Stone.reverseData[tmpColor]["color"];
+        this.image = Stone.reverseData[tmpColor]["image"];
     }
 }
 
@@ -361,7 +411,7 @@ const initialGame = () => {
     // const user2Type = Number(document.getElementById("input-user-type2").value);
 
     board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone("black"), new Stone("black")], [new Stone("white"), new Stone("white")]);
-    users = UsersBuilder.createUsers("keisuke1", 0, "kesuike2", 0);
+    users = UsersBuilder.createUsers("keisuke1", 0, "nebashi", 0);
 
     // facilitator = new Facilitator(users, board);
 
@@ -393,6 +443,7 @@ const initialGame = () => {
                 td.append(img);
             }
             td.classList.add("cell");
+            td.setAttribute("id", `col${i}-row${j}`)
             td.dataset.col = i;
             td.dataset.row = j;
             tr.append(td);
@@ -414,7 +465,7 @@ const initialGame = () => {
     numbersOfStonesWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     numbersOfStonesWrapper.innerHTML =　
     `
-    <p><span>${users.firstUser().name}:</span> <span id="numberOfBlackStones">${board.getNumberOfBlackStones()}</span>&nbsp;<span>${users.lastUser().name}:</span> <span id="numberOfBlackStones">${board.getNumberOfWhiteStones()}</span></p>
+    <p><span>${users.firstUser().name}:</span> <span id="numberOfBlackStones">${board.getNumberOfBlackStones()}</span>&nbsp;<span>${users.lastUser().name}:</span> <span id="numberOfWhiteStones">${board.getNumberOfWhiteStones()}</span></p>
     `
 
     container.append(title);
@@ -434,6 +485,7 @@ for(let cell of cells){
     cell.addEventListener("click", () => {
         const col = Number(cell.dataset.col);
         const row = Number(cell.dataset.row);
+
         if(board.ifAStoneIsOnTheCell(col, row)){
             alert("既に石が置かれています");
             return;
@@ -447,14 +499,28 @@ for(let cell of cells){
 
         // 石を置く
         users.currentUser().putAStone(board, col, row);
+        // インスタンスメソッドに入れる？
         let img = document.createElement("img");
         img.src = board.getCell(col, row).stone.image;
         cell.append(img);
 
         // ひっくり返す
+        users.currentUser().reverseStones(board, col, row);
+
         // 点数更新
+        // インスタンスメソッドに入れる？
+        document.getElementById("numberOfBlackStones").innerText = board.getNumberOfBlackStones();
+        document.getElementById("numberOfWhiteStones").innerText = board.getNumberOfWhiteStones();
+
         // ユーザーチェンジ
+        // インスタンスメソッドに入れる？
+        users.changeCurrentUser();
+        document.getElementById("currentPlayer").innerText = users.currentUser().name;
     })
 }
 
+// インスタンスメソッドに入れる？
 // パスボタンを実装
+// ゲーム終了を判断するロジック
+// リスタートボタン
+// AI対戦
