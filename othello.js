@@ -391,6 +391,7 @@ const initialGame = () => {
     // html作成
     const parent = document.createElement("div");
     parent.classList.add("row", "align-middle");
+
     const container = document.createElement("div");
     container.classList.add("col-sm-12", "col-md-12", "col-lg-12");
 
@@ -441,13 +442,34 @@ const initialGame = () => {
     <p><span>${users.firstUser().name}:</span> <span id="numberOfBlackStones"></span>&nbsp;<span>${users.lastUser().name}:</span> <span id="numberOfWhiteStones"></span></p>
     `
 
+    // パスボタン
+    const passBottuonWrapper = document.createElement("div");
+    passBottuonWrapper.classList.add("col-sm-4", "col-md-3", "col-lg-2", "text-center");
+    passBottuonWrapper.style.margin = "0 auto";
+    passBottuonWrapper.innerHTML =
+    `
+    <button type="button" class="btn btn-primary col-12" onclick='users.changeCurrentUser();'>pass</button>
+    `
+
+    // リスタート
+    const restartBottuonWrapper = document.createElement("div");
+    restartBottuonWrapper.classList.add("col-sm-4", "col-md-3", "col-lg-2", "text-center");
+    restartBottuonWrapper.style.margin = "0 auto";
+    restartBottuonWrapper.innerHTML =
+    `
+    <button type="button" class="btn btn-primary col-12" onclick='initialGame();'>リスタート</button>
+    `
+
     container.append(title);
     container.append(tableWrapper);
     container.append(currentPlayerWrapper);
     container.append(numbersOfStonesWrapper);
+    container.append(passBottuonWrapper);
+    container.append(restartBottuonWrapper);
+
     parent.append(container);
 
-    config.target.append(parent)
+    config.target.append(parent);
 
     users.changeCurrentUser();
     board.updateNumberOfBlackStones();
