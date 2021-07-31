@@ -449,9 +449,9 @@ const initialGame = () => {
 
     config.target.append(parent)
 
+    users.changeCurrentUser();
     board.updateNumberOfBlackStones();
     board.updateNumberOfWhiteStones();
-    users.changeCurrentUser();
 }
 
 // displayTopPage();
