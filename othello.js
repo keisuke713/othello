@@ -1,60 +1,24 @@
 class Config{
-    constructor(target, numberOfCellsPerRow){
-        this.target        　　　　= target;
-        this.numberOfCellsPerRow = numberOfCellsPerRow;
+    constructor(target, numberOfCellsPerRow, numberOfBlackStonesId, numberOfWhiteStonesId, currentPlayerId){
+        this.target        　　　　 = target;
+        this.numberOfCellsPerRow   = numberOfCellsPerRow;
+        this.numberOfBlackStonesId = numberOfBlackStonesId;
+        this.numberOfWhiteStonesId = numberOfWhiteStonesId;
+        this.currentPlayerId       = currentPlayerId
     }
 }
 
-const config = new Config(document.getElementById("target"), 8);
+const config = new Config(document.getElementById("target"), 8, "numberOfBlackStones", "numberOfWhiteStones", "currentPlayer");
 
-// let facilitator = null;
 let users       = null;
 let board       = null;
 let cells       = null;
 
-// class Facilitator{
-//     constructor(users, board){
-//         this.users              = users;
-//         this.board              = board;
-//         this.currentUserIndex   = 0;
-//         this.amountOfBlackStone = 0;
-//         this.amountOfWhiteStone = 0;
-//     }
-
-//     // 既に石が置かれているかどうか
-//     ifAStoneIsOnTheCell(col, row){
-//         this.board.ifAStoneIsOnTheCell(col, row);
-//     }
-//     // ユーザーが石を置けるかどうか
-//     ifUserCanPutStoneOnTheCell(col, row){
-//         this.currentUser().canPutAStoneOnTheCell(this.board, col, row);
-//     }
-//     // ユーザーが石をおく
-//     userPutAStoneOnTheCell(col, row){
-//         this.currentUser().putAStone(this.board, col, row);
-//     }
-//     // 石をひっくり返す
-//     userReverseStones(col, row){
-//         this.currentUser().reverseStones(this.board, col, row);
-//     }
-//     // 現在のユーザー
-//     currentUser(){
-//         this.users.currentUser();
-//     }
-//     // 盤の黒の石の数を更新
-//     setAmountOfBlackStone(){
-//         this.amountOfBlackStone = this.board.getAmountOfStones("black");
-//     }
-//     // 盤の白の石の数を更新
-//     setAmountOfWhiteStone(){
-//         this.amountOfWhiteStone =this.board.getAmountOfStones("white");
-//     }
-// }
-
 class Users{
-    constructor(firstUser, lastUser){
+    constructor(firstUser, lastUser, currentPlayerId){
         this.users = [firstUser, lastUser];
-        this.currentUserIndex   = 0;
+        this.currentUserIndex   = 1;
+        this.currentPlayerId = currentPlayerId;
     }
     // currentUserを更新
     currentUser(){
@@ -63,6 +27,7 @@ class Users{
     // インデックスを更新
     changeCurrentUser(){
         this.currentUserIndex = (this.currentUserIndex + 1) & 1;
+        document.getElementById(this.currentPlayerId).innerText = this.currentUser().name;
     }
     firstUser(){
         return this.users[0];
@@ -116,6 +81,12 @@ class User{
     // ユーザーが石をおく
     putAStone(board, col, row){
         board.getCell(col, row).putAStone(this.stones.pop());
+
+        // viewにも変更を反映
+        const cell = document.getElementById(`col${col}-row${row}`);
+        const img = document.createElement("img");
+        img.src = board.getCell(col, row).stone.image;
+        cell.append(img);
     }
 
     // 石をひっくり返す
@@ -167,11 +138,11 @@ class User{
 }
 
 class Board{
-    constructor(cells, blackStones, whiteStones){
+    constructor(cells, blackStones, whiteStones, numberOfBlackStonesId, numberOfWhiteStonesId){
         this.cells = cells;
-        this.amountOfBlackStone = 0;
-        this.amountOfWhiteStone = 0;
         this.setInitialStones(blackStones, whiteStones);
+        this.numberOfBlackStonesId = numberOfBlackStonesId;
+        this.numberOfWhiteStonesId = numberOfWhiteStonesId;
     }
 
     // 既に石が置かれているかどうか
@@ -193,24 +164,26 @@ class Board{
         }
     }
 
-    getNumberOfBlackStones(){
+    updateNumberOfBlackStones(){
         let count = 0;
         for(let i=0; i<this.cells.length; i++){
             for(let j=0; j<this.cells[i].length; j++){
                 if(this.getCell(i,j).isStoneBlack()) count++;
             }
         }
-        return count;
+
+        document.getElementById(this.numberOfBlackStonesId).innerText = count;
     }
 
-    getNumberOfWhiteStones(){
+    updateNumberOfWhiteStones(){
         let count = 0;
         for(let i=0; i<this.cells.length; i++){
             for(let j=0; j<this.cells[i].length; j++){
                 if(this.getCell(i,j).isStoneWhite()) count++;
             }
         }
-        return count;
+
+        document.getElementById(this.numberOfWhiteStonesId).innerText = count;
     }
     getNumberOfEachStones(){
         return this.cells.length ** 2 / 2;
@@ -289,17 +262,18 @@ class Stone{
 }
 
 class UsersBuilder{
-    static createUsers(user1Name, user1Type, user2Name, user2Type){
+    static createUsers(user1Name, user1Type, user2Name, user2Type, currentPlayerId){
         return new Users(
             new User(user1Name, user1Type, StonesBuilder.createStones("black", config.numberOfCellsPerRow ** 2 / 2), "black"), 
-            new User(user2Name, user2Type, StonesBuilder.createStones("white", config.numberOfCellsPerRow ** 2 / 2), "white")
+            new User(user2Name, user2Type, StonesBuilder.createStones("white", config.numberOfCellsPerRow ** 2 / 2), "white"),
+            currentPlayerId
         );
     }
 }
 
 class BoardBuilder{
-    static createBoard(cells, blackStones, whiteStones){
-        return new Board(cells, blackStones, whiteStones);
+    static createBoard(cells, blackStones, whiteStones, numberOfBlackStonesId, numberOfWhiteStonesId){
+        return new Board(cells, blackStones, whiteStones, numberOfBlackStonesId, numberOfWhiteStonesId);
     }
 }
 
@@ -410,10 +384,9 @@ const initialGame = () => {
     // const user2Name = document.getElementById("input-user-name2").value;
     // const user2Type = Number(document.getElementById("input-user-type2").value);
 
-    board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone("black"), new Stone("black")], [new Stone("white"), new Stone("white")]);
-    users = UsersBuilder.createUsers("keisuke", 0, "nebashi", 0);
+    board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone("black"), new Stone("black")], [new Stone("white"), new Stone("white")], config.numberOfBlackStonesId, config.numberOfWhiteStonesId);
+    users = UsersBuilder.createUsers("keisuke", 0, "nebashi", 0, config.currentPlayerId);
 
-    // facilitator = new Facilitator(users, board);
 
     // html作成
     let parent = document.createElement("div");
@@ -457,7 +430,7 @@ const initialGame = () => {
     currentPlayerWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     currentPlayerWrapper.innerHTML =　
     `
-    <p>Current player: <span id="currentPlayer">${users.currentUser().name}</span></p>
+    <p>Current player: <span id="currentPlayer"></span></p>
     `
 
     // 石の数
@@ -465,7 +438,7 @@ const initialGame = () => {
     numbersOfStonesWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     numbersOfStonesWrapper.innerHTML =　
     `
-    <p><span>${users.firstUser().name}:</span> <span id="numberOfBlackStones">${board.getNumberOfBlackStones()}</span>&nbsp;<span>${users.lastUser().name}:</span> <span id="numberOfWhiteStones">${board.getNumberOfWhiteStones()}</span></p>
+    <p><span>${users.firstUser().name}:</span> <span id="numberOfBlackStones"></span>&nbsp;<span>${users.lastUser().name}:</span> <span id="numberOfWhiteStones"></span></p>
     `
 
     container.append(title);
@@ -475,6 +448,10 @@ const initialGame = () => {
     parent.append(container);
 
     config.target.append(parent)
+
+    board.updateNumberOfBlackStones();
+    board.updateNumberOfWhiteStones();
+    users.changeCurrentUser();
 }
 
 // displayTopPage();
@@ -499,23 +476,16 @@ for(let cell of cells){
 
         // 石を置く
         users.currentUser().putAStone(board, col, row);
-        // インスタンスメソッドに入れる？
-        let img = document.createElement("img");
-        img.src = board.getCell(col, row).stone.image;
-        cell.append(img);
 
         // ひっくり返す
         users.currentUser().reverseStones(board, col, row);
 
         // 点数更新
-        // インスタンスメソッドに入れる？
-        document.getElementById("numberOfBlackStones").innerText = board.getNumberOfBlackStones();
-        document.getElementById("numberOfWhiteStones").innerText = board.getNumberOfWhiteStones();
+        board.updateNumberOfBlackStones();
+        board.updateNumberOfWhiteStones();
 
         // ユーザーチェンジ
-        // インスタンスメソッドに入れる？
         users.changeCurrentUser();
-        document.getElementById("currentPlayer").innerText = users.currentUser().name;
     })
 }
 
