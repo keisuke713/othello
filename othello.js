@@ -123,7 +123,7 @@ class User{
         while(board.getCell(col, row) != undefined && board.getCell(col, row).isStoneOn && this.stoneColor != board.getCell(col, row).stone.color){
             board.getCell(col, row).stone.reverse();
 
-            let img = document.getElementById(`col${col}-row${row}`).childNodes[0];
+            const img = document.getElementById(`col${col}-row${row}`).childNodes[0];
             img.src = board.getCell(col, row).stone.image;
 
             col = addOrSubCol(col);
@@ -255,7 +255,7 @@ class Stone{
         this.image = "white.png";
     }
     reverse(){
-        let tmpColor = this.color;
+        const tmpColor = this.color;
         this.color = Stone.oppositeColorData[tmpColor]["color"];
         this.image = Stone.oppositeColorData[tmpColor]["image"];
     }
@@ -389,13 +389,13 @@ const initialGame = () => {
 
 
     // html作成
-    let parent = document.createElement("div");
+    const parent = document.createElement("div");
     parent.classList.add("row", "align-middle");
-    let container = document.createElement("div");
+    const container = document.createElement("div");
     container.classList.add("col-sm-12", "col-md-12", "col-lg-12");
 
     // タイトル
-    let title = document.createElement("div");
+    const title = document.createElement("div");
     title.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     title.innerHTML =
     `
@@ -403,9 +403,9 @@ const initialGame = () => {
     `
 
     // オセロ盤
-    let tableWrapper = document.createElement("div");
+    const tableWrapper = document.createElement("div");
     tableWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
-    let table = document.createElement("table");
+    const table = document.createElement("table");
     for(let i=0; i<board.getNumberOfCellsPerEachRow(); i++){
         let tr = document.createElement("tr");
         for(let j=0; j<board.getNumberOfCellsPerEachRow(); j++){
@@ -426,7 +426,7 @@ const initialGame = () => {
     tableWrapper.append(table);
 
     // CurrentPlayer
-    let currentPlayerWrapper = document.createElement("div");
+    const currentPlayerWrapper = document.createElement("div");
     currentPlayerWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     currentPlayerWrapper.innerHTML =　
     `
@@ -434,7 +434,7 @@ const initialGame = () => {
     `
 
     // 石の数
-    let numbersOfStonesWrapper = document.createElement("div");
+    const numbersOfStonesWrapper = document.createElement("div");
     numbersOfStonesWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
     numbersOfStonesWrapper.innerHTML =　
     `
