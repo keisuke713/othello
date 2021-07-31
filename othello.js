@@ -411,7 +411,7 @@ const initialGame = () => {
     // const user2Type = Number(document.getElementById("input-user-type2").value);
 
     board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone("black"), new Stone("black")], [new Stone("white"), new Stone("white")]);
-    users = UsersBuilder.createUsers("keisuke1", 0, "nebashi", 0);
+    users = UsersBuilder.createUsers("keisuke", 0, "nebashi", 0);
 
     // facilitator = new Facilitator(users, board);
 
