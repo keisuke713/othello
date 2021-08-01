@@ -115,10 +115,7 @@ class User{
         row = addOrSubRow(row);
 
         while(board.getCell(col, row) != undefined && board.getCell(col, row).isStoneOn && this.stoneColor != board.getCell(col, row).stone.color){
-            board.getCell(col, row).stone.reverse();
-
-            const img = document.getElementById(`col${col}-row${row}`).childNodes[0];
-            img.src = board.getCell(col, row).stone.image;
+            board.getCell(col, row).reverseStone();
 
             col = addOrSubCol(col);
             row = addOrSubRow(row);
@@ -224,6 +221,12 @@ class Cell{
         const img = document.createElement("img");
         img.src = stone.image;
         cell.append(img);
+    }
+    reverseStone(){
+        this.stone.reverse()
+
+        const img = document.getElementById(`col${this.col}-row${this.row}`).querySelector("img");
+        img.src   = this.stone.image;
     }
 }
 
