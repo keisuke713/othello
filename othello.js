@@ -81,12 +81,6 @@ class User{
     // ユーザーが石をおく
     putAStone(board, col, row){
         board.getCell(col, row).putAStone(this.stones.pop());
-
-        // viewにも変更を反映
-        const cell = document.getElementById(`col${col}-row${row}`);
-        const img = document.createElement("img");
-        img.src = board.getCell(col, row).stone.image;
-        cell.append(img);
     }
 
     // 石をひっくり返す
@@ -203,6 +197,8 @@ class Board{
 class Cell{
     constructor(col, row){
         this.stone = null;
+        this.col   = col;
+        this.row   = row;
     }
 
     // 既に石が置かれているかどうか
@@ -223,6 +219,11 @@ class Cell{
     }
     putAStone(stone){
         this.stone = stone;
+
+        const cell = document.getElementById(`col${this.col}-row${this.row}`);
+        const img = document.createElement("img");
+        img.src = stone.image;
+        cell.append(img);
     }
 }
 
@@ -283,7 +284,7 @@ class CellsBuilder{
         for(let i = 0; i < config.numberOfCellsPerRow; i++){
             let tmp = [];
             for(let j = 0; j < config.numberOfCellsPerRow; j++){
-                tmp.push(new Cell());
+                tmp.push(new Cell(i, j));
             }
             cells.push(tmp);
         }
