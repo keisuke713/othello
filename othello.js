@@ -25,7 +25,7 @@ class Users{
         return this.users[this.currentUserIndex];
     }
     // インデックスを更新
-    changeCurrentUser(){
+    updateCurrentUser(){
         this.currentUserIndex = (this.currentUserIndex + 1) & 1;
         document.getElementById(this.currentPlayerId).innerText = this.currentUser().name;
     }
@@ -377,6 +377,65 @@ const displayAIRegisterPage = () => {
     `
 }
 
+const displayMainPage = (table) => {
+    config.target.innerHTML =
+    `
+    <div class="col-sm-12 col-md-12 col-lg-12">
+                <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                    <h2>オセロゲーム</h2>
+                </div>
+
+                <div class="col-sm-12 col-md-12 col-lg-12 text-center" id="tableWrapper">
+                </div>
+
+                <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                    <p>Current player: <span id="currentPlayer"></span></p>
+                </div>
+
+                <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                    <p><span>${users.firstUser().name}:</span> <span id="numberOfBlackStones"></span>&nbsp;<span>${users.lastUser().name}:</span> <span id="numberOfWhiteStones"></span></p>
+                </div>
+
+                <div class="col-sim-4 col-md-3 col-lg-2 text-center" style="margin:0 auto;">
+                    <button type="button" class="btn btn-primary col-12" onclick='users.updateCurrentUser();'>パス</button>
+                </div>
+
+                <div style="height:5px;"></div>
+
+                <div class="col-sim-4 col-md-3 col-lg-2 text-center" style="margin:0 auto;">
+                    <button type="button" class="btn btn-primary col-12" onclick='initialGame();'>リスタート</button>
+                </div>
+            </div>
+    `
+
+    document.getElementById("tableWrapper").append(table);
+}
+
+const createTable = () => {
+    const table = document.createElement("table");
+    for(let i=0; i<board.getNumberOfCellsPerEachRow(); i++){
+        const tr = document.createElement("tr");
+        for(let j=0; j<board.getNumberOfCellsPerEachRow(); j++){
+            const td = document.createElement("td");
+
+            if(board.getCell(i,j).isStoneOn()){
+                const img = document.createElement("img");
+                img.src = board.getCell(i,j).stone.image;
+                td.append(img);
+            }
+
+            td.classList.add("cell");
+            td.setAttribute("id", `col${i}-row${j}`);
+            td.dataset.col = i;
+            td.dataset.row = j;
+
+            tr.append(td);
+        }
+        table.append(tr);
+    }
+    return table;
+}
+
 // 各インスタンス作成、ボードのHtml作成、石を2こずつ配置
 const initialGame = () => {
     // const user1Name = document.getElementById("input-user-name1").value;
@@ -387,91 +446,9 @@ const initialGame = () => {
     board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone("black"), new Stone("black")], [new Stone("white"), new Stone("white")], config.numberOfBlackStonesId, config.numberOfWhiteStonesId);
     users = UsersBuilder.createUsers("keisuke", 0, "nebashi", 0, config.currentPlayerId);
 
+    displayMainPage(createTable());
 
-    // html作成
-    const parent = document.createElement("div");
-    parent.classList.add("row", "align-middle");
-
-    const container = document.createElement("div");
-    container.classList.add("col-sm-12", "col-md-12", "col-lg-12");
-
-    // タイトル
-    const title = document.createElement("div");
-    title.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
-    title.innerHTML =
-    `
-    <h2>オセロゲーム</h2>
-    `
-
-    // オセロ盤
-    const tableWrapper = document.createElement("div");
-    tableWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
-    const table = document.createElement("table");
-    for(let i=0; i<board.getNumberOfCellsPerEachRow(); i++){
-        let tr = document.createElement("tr");
-        for(let j=0; j<board.getNumberOfCellsPerEachRow(); j++){
-            let td = document.createElement("td");
-            if(board.getCell(i,j).isStoneOn()){
-                let img = document.createElement("img");
-                img.src = board.getCell(i, j).stone.image;
-                td.append(img);
-            }
-            td.classList.add("cell");
-            td.setAttribute("id", `col${i}-row${j}`)
-            td.dataset.col = i;
-            td.dataset.row = j;
-            tr.append(td);
-        }
-        table.append(tr);
-    }
-    tableWrapper.append(table);
-
-    // CurrentPlayer
-    const currentPlayerWrapper = document.createElement("div");
-    currentPlayerWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
-    currentPlayerWrapper.innerHTML =　
-    `
-    <p>Current player: <span id="currentPlayer"></span></p>
-    `
-
-    // 石の数
-    const numbersOfStonesWrapper = document.createElement("div");
-    numbersOfStonesWrapper.classList.add("col-sm-12", "col-md-12", "col-lg-12", "text-center");
-    numbersOfStonesWrapper.innerHTML =　
-    `
-    <p><span>${users.firstUser().name}:</span> <span id="numberOfBlackStones"></span>&nbsp;<span>${users.lastUser().name}:</span> <span id="numberOfWhiteStones"></span></p>
-    `
-
-    // パスボタン
-    const passBottuonWrapper = document.createElement("div");
-    passBottuonWrapper.classList.add("col-sm-4", "col-md-3", "col-lg-2", "text-center");
-    passBottuonWrapper.style.margin = "0 auto";
-    passBottuonWrapper.innerHTML =
-    `
-    <button type="button" class="btn btn-primary col-12" onclick='users.changeCurrentUser();'>pass</button>
-    `
-
-    // リスタート
-    const restartBottuonWrapper = document.createElement("div");
-    restartBottuonWrapper.classList.add("col-sm-4", "col-md-3", "col-lg-2", "text-center");
-    restartBottuonWrapper.style.margin = "0 auto";
-    restartBottuonWrapper.innerHTML =
-    `
-    <button type="button" class="btn btn-primary col-12" onclick='initialGame();'>リスタート</button>
-    `
-
-    container.append(title);
-    container.append(tableWrapper);
-    container.append(currentPlayerWrapper);
-    container.append(numbersOfStonesWrapper);
-    container.append(passBottuonWrapper);
-    container.append(restartBottuonWrapper);
-
-    parent.append(container);
-
-    config.target.append(parent);
-
-    users.changeCurrentUser();
+    users.updateCurrentUser();
     board.updateNumberOfBlackStones();
     board.updateNumberOfWhiteStones();
 }
@@ -507,12 +484,10 @@ for(let cell of cells){
         board.updateNumberOfWhiteStones();
 
         // ユーザーチェンジ
-        users.changeCurrentUser();
+        users.updateCurrentUser();
     })
 }
 
-// インスタンスメソッドに入れる？
-// パスボタンを実装
+
 // ゲーム終了を判断するロジック
-// リスタートボタン
 // AI対戦
