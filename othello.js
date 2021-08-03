@@ -8,11 +8,12 @@ class Config{
     }
 }
 
-const config = new Config(document.getElementById("target"), 8, "numberOfBlackStones", "numberOfWhiteStones", "currentPlayer");
+const config = new Config(document.getElementById("target"), 6, "numberOfBlackStones", "numberOfWhiteStones", "currentPlayer");
 
 let users       = null;
 let board       = null;
 let cells       = null;
+let stones      = null;
 
 class Users{
     constructor(firstUser, lastUser, currentPlayerId){
@@ -80,7 +81,7 @@ class User{
 
     // ユーザーが石をおく
     putAStone(board, col, row){
-        board.getCell(col, row).putAStone(this.stones.pop());
+        board.getCell(col, row).putAStone(this.stones.pop(), this.stoneColor);
     }
 
     // 石をひっくり返す
@@ -142,7 +143,14 @@ class Board{
     }
     // getAmountOfStones(color){}
     isThereAnyCellUserCanPutAStone(user){}
-    isAllCellPutAStone(){}
+    isAllCellPutAStone(){
+        for(let i=0; i<this.cells.length; i++){
+            for(let j=0; j<this.cells[i].length; j++){
+                if(!(this.getCell(i, j).isStoneOn())) return false;
+            }
+        }
+        return true;
+    }
 
     setInitialStones(blackStones, whiteStones){
         for(let i = 0; i < this.getNumberOfCellsPerEachRow(); i++){
@@ -214,7 +222,8 @@ class Cell{
     stoneColor(){
         return this.stone.color;
     }
-    putAStone(stone){
+    putAStone(stone, color){
+        stone.setColorAndImage(color);
         this.stone = stone;
 
         const cell = document.getElementById(`col${this.col}-row${this.row}`);
@@ -231,16 +240,25 @@ class Cell{
 }
 
 class Stone{
+    static image = {
+        "black": "black.png",
+        "white": "white.png"
+    }
+
     static oppositeColorData = {
         "black": {"color": "white", "image": "white.png"},
         "white": {"color": "black", "image": "black.png"}
     }
 
-    constructor(color){
+    constructor(color = null){
         this.color = color;
-        this.image = this.initialImage();
+        this.image = color == null ? null : Stone.image[color];
     }
 
+    setColorAndImage(color){
+        this.color = color;
+        this.image = Stone.image[color];
+    }
     isBlack(){
         return this.color == "black";
     }
@@ -250,14 +268,6 @@ class Stone{
     initialImage(){
         return this.isBlack() ? "black.png" : "white.png"
     }
-    turnIntoBlack(){
-        this.color = "black";
-        this.image = "black.png";
-    }
-    turnIntoWhite(){
-        this.color = "white";
-        this.image = "white.png";
-    }
     reverse(){
         const tmpColor = this.color;
         this.color = Stone.oppositeColorData[tmpColor]["color"];
@@ -266,10 +276,10 @@ class Stone{
 }
 
 class UsersBuilder{
-    static createUsers(user1Name, user1Type, user2Name, user2Type, currentPlayerId){
+    static createUsers(user1Name, user1Type, user2Name, user2Type, currentPlayerId, stones){
         return new Users(
-            new User(user1Name, user1Type, StonesBuilder.createStones("black", config.numberOfCellsPerRow ** 2 / 2), "black"), 
-            new User(user2Name, user2Type, StonesBuilder.createStones("white", config.numberOfCellsPerRow ** 2 / 2), "white"),
+            new User(user1Name, user1Type, stones, "black"), 
+            new User(user2Name, user2Type, stones, "white"),
             currentPlayerId
         );
     }
@@ -296,10 +306,10 @@ class CellsBuilder{
 }
 
 class StonesBuilder{
-    static createStones(color, numberOfStones){
+    static createStones(numberOfStones){
         let stones = [];
-        for(let i = 0; i < numberOfStones - 2; i++){
-            stones.push(new Stone(color));
+        for(let i = 0; i < numberOfStones - 4; i++){
+            stones.push(new Stone());
         }
         return stones;
     }
@@ -381,6 +391,7 @@ const displayAIRegisterPage = () => {
     `
 }
 
+// メインページ
 const displayMainPage = (table) => {
     config.target.innerHTML =
     `
@@ -415,6 +426,7 @@ const displayMainPage = (table) => {
     document.getElementById("tableWrapper").append(table);
 }
 
+// オセロ盤のhtml作成
 const createTable = () => {
     const table = document.createElement("table");
     for(let i=0; i<board.getNumberOfCellsPerEachRow(); i++){
@@ -448,7 +460,7 @@ const initialGame = () => {
     // const user2Type = Number(document.getElementById("input-user-type2").value);
 
     board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone("black"), new Stone("black")], [new Stone("white"), new Stone("white")], config.numberOfBlackStonesId, config.numberOfWhiteStonesId);
-    users = UsersBuilder.createUsers("keisuke", 0, "nebashi", 0, config.currentPlayerId);
+    users = UsersBuilder.createUsers("player1", 0, "player2", 0, config.currentPlayerId, StonesBuilder.createStones(Math.pow(config.numberOfCellsPerRow, 2)));
 
     displayMainPage(createTable());
 
@@ -495,3 +507,6 @@ for(let cell of cells){
 
 // ゲーム終了を判断するロジック
 // AI対戦
+
+
+// stoneをuserに持たせるのでなくグローバルにする(石の数が固定化されないタメ)
