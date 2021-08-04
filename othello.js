@@ -12,7 +12,6 @@ const config = new Config(document.getElementById("target"), 6, "numberOfBlackSt
 
 let users       = null;
 let board       = null;
-let cells       = null;
 let stones      = null;
 
 class Users{
@@ -262,9 +261,6 @@ class Stone{
     isWhite(){
         return this.color == "white";
     }
-    initialImage(){
-        return this.isBlack() ? "black.png" : "white.png"
-    }
     reverse(){
         const tmpColor = this.color;
         this.color = Stone.oppositeColorData[tmpColor]["color"];
@@ -322,10 +318,11 @@ const displayTopPage = () => {
                 <h2>オセロゲーム</h2>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-2 text-center" style="margin:0 auto;">
-                <form id="signup">
-                    <button type="button" class="btn btn-primary col-12" onclick='displayUserRegisterPage();return false;'>ユーザー対戦</button>
-                    <button type="button" class="btn btn-primary col-12" onclick='displayAIRegisterPage();return false;'>AI対戦</button>
-                </form>
+                <button type="button" class="btn btn-primary col-12" onclick='displayUserRegisterPage();return false;'>ユーザー対戦</button>
+            </div>
+            <div style="height:5px;"></div>
+            <div class="col-sm-6 col-md-4 col-lg-2 text-center" style="margin:0 auto;">
+                <button type="button" class="btn btn-primary col-12" onclick='displayAIRegisterPage();return false;'>AI対戦</button>
             </div>
         </div>
     </div>
@@ -351,8 +348,13 @@ const displayUserRegisterPage = () => {
                         <input type="text" name="userName2" class="form-control" id="input-user-name2" placeholder="ユーザーネーム" value="">
                         <input type="hidden" name="userType2" id="input-user-type2" value=0>
                     </div>
-                    <button type="submit" class="btn btn-primary col-12" onclick='initialGame();return false;'>登録してゲームスタート</button>
-                    <button type="button" class="btn btn-primary col-12" onclick='displayTopPage();return false;'>戻る</button>
+                    <div class="col-sm-6 col-md-4 col-lg-2 text-center" style="margin:0 auto;">
+                        <button type="submit" class="btn btn-primary col-12" onclick='initialGame();return false;'>登録してゲームスタート</button>
+                    </div>
+                    <div style="height:5px"></div>
+                    <div class="col-sm-6 col-md-4 col-lg-2 text-center" style="margin:0 auto;">
+                        <button type="button" class="btn btn-primary col-12" onclick='displayTopPage();return false;'>戻る</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -379,8 +381,13 @@ const displayAIRegisterPage = () => {
                         <input type="hidden" name="userName2" class="form-control" id="input-user-name2" placeholder="ユーザーネーム" value="AI">
                         <input type="hidden" name="userType2" id="input-user-type2" value=1>
                     </div>
-                    <button type="submit" class="btn btn-primary col-12" onclick='initialGame();return false;'>登録してゲームスタート</button>
-                    <button type="button" class="btn btn-primary col-12" onclick='displayTopPage();return false;'>戻る</button>
+                    <div class="col-sm-6 col-md-4 col-lg-2 text-center" style="margin:0 auto;">
+                        <button type="submit" class="btn btn-primary col-12" onclick='initialGame();return false;'>登録してゲームスタート</button>
+                    </div>
+                    <div style="height:5px"></div>
+                    <div class="col-sm-6 col-md-4 col-lg-2 text-center" style="margin:0 auto;">
+                        <button type="button" class="btn btn-primary col-12" onclick='displayTopPage();return false;'>戻る</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -449,57 +456,63 @@ const createTable = () => {
     return table;
 }
 
-// 各インスタンス作成、ボードのHtml作成、石を2こずつ配置
+const addEventWhenPutAStone = () => {
+    let cells = document.getElementsByClassName("cell");
+    for(let cell of cells){
+        cell.addEventListener("click", () => {
+            const col = Number(cell.dataset.col);
+            const row = Number(cell.dataset.row);
+    
+            if(board.ifAStoneIsOnTheCell(col, row)){
+                alert("既に石が置かれています");
+                return;
+            }
+    
+            // 現在のユーザーがそこに石をおいて良いか確認
+            if(!users.currentUser().canPutAStoneOnTheCell(board, col, row)){
+                alert(`User: ${users.currentUser().name}はそのマスに石を置くことはできません!!!`);
+                return;
+            }
+    
+            // 石を置く
+            users.currentUser().putAStone(board, col, row);
+    
+            // ひっくり返す
+            users.currentUser().reverseStones(board, col, row);
+    
+            // 点数更新
+            board.updateNumberOfBlackStones();
+            board.updateNumberOfWhiteStones();
+    
+            // ユーザーチェンジ
+            users.updateCurrentUser();
+        })
+    }
+}
+
+// 各インスタンス作成、ボードのHtml作成、石を2こずつ配置、石を置くときのイベント設定
 const initialGame = () => {
-    // const user1Name = document.getElementById("input-user-name1").value;
-    // const user1Type = Number(document.getElementById("input-user-type1").value);
-    // const user2Name = document.getElementById("input-user-name2").value;
-    // const user2Type = Number(document.getElementById("input-user-type2").value);
+    const user1Name = document.getElementById("input-user-name1").value;
+    const user1Type = Number(document.getElementById("input-user-type1").value);
+    const user2Name = document.getElementById("input-user-name2").value;
+    const user2Type = Number(document.getElementById("input-user-type2").value);
 
     board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone(), new Stone(), new Stone(), new Stone()], config.numberOfBlackStonesId, config.numberOfWhiteStonesId)
-    users = UsersBuilder.createUsers("player1", 0, "player2", 0, config.currentPlayerId, StonesBuilder.createStones(Math.pow(config.numberOfCellsPerRow, 2)));
+    users = UsersBuilder.createUsers(user1Name, user1Type, user2Name, user2Type, config.currentPlayerId, StonesBuilder.createStones(Math.pow(config.numberOfCellsPerRow, 2)));
+    // users = UsersBuilder.createUsers("player1", 0, "player2", 0, config.currentPlayerId, StonesBuilder.createStones(Math.pow(config.numberOfCellsPerRow, 2)));
 
-    displayMainPage(createTable());
+    const table = createTable();
+    displayMainPage(table);
+
+    addEventWhenPutAStone();
 
     users.updateCurrentUser();
     board.updateNumberOfBlackStones();
     board.updateNumberOfWhiteStones();
 }
 
-// displayTopPage();
-initialGame();
-
-cells = document.getElementsByClassName("cell");
-for(let cell of cells){
-    cell.addEventListener("click", () => {
-        const col = Number(cell.dataset.col);
-        const row = Number(cell.dataset.row);
-
-        if(board.ifAStoneIsOnTheCell(col, row)){
-            alert("既に石が置かれています");
-            return;
-        }
-
-        // 現在のユーザーがそこに石をおいて良いか確認
-        if(!users.currentUser().canPutAStoneOnTheCell(board, col, row)){
-            alert(`User: ${users.currentUser().name}はそのマスに石を置くことはできません!!!`);
-            return;
-        }
-
-        // 石を置く
-        users.currentUser().putAStone(board, col, row);
-
-        // ひっくり返す
-        users.currentUser().reverseStones(board, col, row);
-
-        // 点数更新
-        board.updateNumberOfBlackStones();
-        board.updateNumberOfWhiteStones();
-
-        // ユーザーチェンジ
-        users.updateCurrentUser();
-    })
-}
+displayTopPage();
+// initialGame();
 
 
 // ゲーム終了を判断するロジック
