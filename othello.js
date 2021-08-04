@@ -130,9 +130,9 @@ class User{
 }
 
 class Board{
-    constructor(cells, blackStones, whiteStones, numberOfBlackStonesId, numberOfWhiteStonesId){
+    constructor(cells, stones, numberOfBlackStonesId, numberOfWhiteStonesId){
         this.cells = cells;
-        this.setInitialStones(blackStones, whiteStones);
+        this.setInitialStones(stones);
         this.numberOfBlackStonesId = numberOfBlackStonesId;
         this.numberOfWhiteStonesId = numberOfWhiteStonesId;
     }
@@ -151,18 +151,16 @@ class Board{
         }
         return true;
     }
-
-    setInitialStones(blackStones, whiteStones){
+    setInitialStones(stones){
         for(let i = 0; i < this.getNumberOfCellsPerEachRow(); i++){
             for(let j = 0; j < this.getNumberOfCellsPerEachRow(); j++){
-                if(i == this.getNumberOfCellsPerEachRow() / 2 - 1 && j == this.getNumberOfCellsPerEachRow() / 2 - 1) this.getCell(i, j).setStone(blackStones.pop())
-                if(i == this.getNumberOfCellsPerEachRow() / 2 && j == this.getNumberOfCellsPerEachRow() / 2) this.getCell(i, j).setStone(blackStones.pop())
-                if(i == this.getNumberOfCellsPerEachRow() / 2 - 1 && j == this.getNumberOfCellsPerEachRow() / 2) this.getCell(i, j).setStone(whiteStones.pop())
-                if(i == this.getNumberOfCellsPerEachRow() / 2 && j == this.getNumberOfCellsPerEachRow() / 2 - 1) this.getCell(i, j).setStone(whiteStones.pop())
+                if(i == this.getNumberOfCellsPerEachRow() / 2 - 1 && j == this.getNumberOfCellsPerEachRow() / 2 - 1) this.getCell(i, j).putAStone(stones.pop(), "black");
+                if(i == this.getNumberOfCellsPerEachRow() / 2 && j == this.getNumberOfCellsPerEachRow() / 2) this.getCell(i, j).putAStone(stones.pop(), "black");
+                if(i == this.getNumberOfCellsPerEachRow() / 2 - 1 && j == this.getNumberOfCellsPerEachRow() / 2) this.getCell(i, j).putAStone(stones.pop(), "white");
+                if(i == this.getNumberOfCellsPerEachRow() / 2 && j == this.getNumberOfCellsPerEachRow() / 2 - 1) this.getCell(i, j).putAStone(stones.pop(), "white");
             }
         }
     }
-
     updateNumberOfBlackStones(){
         let count = 0;
         for(let i=0; i<this.cells.length; i++){
@@ -173,7 +171,6 @@ class Board{
 
         document.getElementById(this.numberOfBlackStonesId).innerText = count;
     }
-
     updateNumberOfWhiteStones(){
         let count = 0;
         for(let i=0; i<this.cells.length; i++){
@@ -216,9 +213,6 @@ class Cell{
     isStoneWhite(){
         return this.stone == null || this.stone.isBlack() ? false : true;
     }
-    setStone(stone){
-        this.stone = stone;
-    }
     stoneColor(){
         return this.stone.color;
     }
@@ -227,6 +221,9 @@ class Cell{
         this.stone = stone;
 
         const cell = document.getElementById(`col${this.col}-row${this.row}`);
+
+        if(cell == null) return;
+
         const img = document.createElement("img");
         img.src = stone.image;
         cell.append(img);
@@ -286,8 +283,8 @@ class UsersBuilder{
 }
 
 class BoardBuilder{
-    static createBoard(cells, blackStones, whiteStones, numberOfBlackStonesId, numberOfWhiteStonesId){
-        return new Board(cells, blackStones, whiteStones, numberOfBlackStonesId, numberOfWhiteStonesId);
+    static createBoard(cells, stones, numberOfBlackStonesId, numberOfWhiteStonesId){
+        return new Board(cells, stones, numberOfBlackStonesId, numberOfWhiteStonesId);
     }
 }
 
@@ -459,7 +456,7 @@ const initialGame = () => {
     // const user2Name = document.getElementById("input-user-name2").value;
     // const user2Type = Number(document.getElementById("input-user-type2").value);
 
-    board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone("black"), new Stone("black")], [new Stone("white"), new Stone("white")], config.numberOfBlackStonesId, config.numberOfWhiteStonesId);
+    board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone(), new Stone(), new Stone(), new Stone()], config.numberOfBlackStonesId, config.numberOfWhiteStonesId)
     users = UsersBuilder.createUsers("player1", 0, "player2", 0, config.currentPlayerId, StonesBuilder.createStones(Math.pow(config.numberOfCellsPerRow, 2)));
 
     displayMainPage(createTable());
@@ -507,6 +504,3 @@ for(let cell of cells){
 
 // ゲーム終了を判断するロジック
 // AI対戦
-
-
-// stoneをuserに持たせるのでなくグローバルにする(石の数が固定化されないタメ)
