@@ -6,13 +6,15 @@ class Config{
         this.numberOfWhiteStonesId = numberOfWhiteStonesId;
         this.currentPlayerId       = currentPlayerId
     }
+    getNumberOfStones(){
+        return Math.pow(this.numberOfCellsPerRow, 2)
+    }
 }
 
-const config = new Config(document.getElementById("target"), 6, "numberOfBlackStones", "numberOfWhiteStones", "currentPlayer");
+const config = new Config(document.getElementById("target"), 4, "numberOfBlackStones", "numberOfWhiteStones", "currentPlayer");
 
 let users       = null;
 let board       = null;
-let stones      = null;
 
 class Users{
     constructor(firstUser, lastUser, currentPlayerId){
@@ -34,6 +36,12 @@ class Users{
     }
     lastUser(){
         return this.users[1];
+    }
+    resetUsers(stones){
+        for(let user of this.users){
+            user.stones = stones;
+        }
+        this.currentUserIndex = 1;
     }
 }
 
@@ -192,6 +200,14 @@ class Board{
         if(col < 0 || col >= this.getNumberOfCellsPerEachRow()) return;
         if(row < 0 || col >= this.getNumberOfCellsPerEachRow()) return;
         return this.cells[col][row];
+    }
+    resetBoard(stones){
+        for(let i=0; i<this.cells.length; i++){
+            for(let j=0; j<this.cells[i].length; j++){
+                this.getCell(i,j).stone = null;
+            }
+        }
+        this.setInitialStones(stones);
     }
 }
 
@@ -422,7 +438,7 @@ const displayMainPage = (table) => {
                 <div style="height:5px;"></div>
 
                 <div class="col-sim-4 col-md-3 col-lg-2 text-center" style="margin:0 auto;">
-                    <button type="button" class="btn btn-primary col-12" onclick='initialGame();'>リスタート</button>
+                    <button type="button" class="btn btn-primary col-12" onclick='resetGame();'>リスタート</button>
                 </div>
             </div>
     `
@@ -492,15 +508,29 @@ const addEventWhenPutAStone = () => {
 
 // 各インスタンス作成、ボードのHtml作成、石を2こずつ配置、石を置くときのイベント設定
 const initialGame = () => {
-    const user1Name = document.getElementById("input-user-name1").value;
-    const user1Type = Number(document.getElementById("input-user-type1").value);
-    const user2Name = document.getElementById("input-user-name2").value;
-    const user2Type = Number(document.getElementById("input-user-type2").value);
+    // const user1Name = document.getElementById("input-user-name1").value;
+    // const user1Type = Number(document.getElementById("input-user-type1").value);
+    // const user2Name = document.getElementById("input-user-name2").value;
+    // const user2Type = Number(document.getElementById("input-user-type2").value);
 
     board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone(), new Stone(), new Stone(), new Stone()], config.numberOfBlackStonesId, config.numberOfWhiteStonesId)
-    users = UsersBuilder.createUsers(user1Name, user1Type, user2Name, user2Type, config.currentPlayerId, StonesBuilder.createStones(Math.pow(config.numberOfCellsPerRow, 2)));
-    // users = UsersBuilder.createUsers("player1", 0, "player2", 0, config.currentPlayerId, StonesBuilder.createStones(Math.pow(config.numberOfCellsPerRow, 2)));
+    // users = UsersBuilder.createUsers(user1Name, user1Type, user2Name, user2Type, config.currentPlayerId, StonesBuilder.createStones(config.getNumberOfStones()));
+    users = UsersBuilder.createUsers("player1", 0, "player2", 0, config.currentPlayerId, StonesBuilder.createStones(config.getNumberOfStones()));
 
+    const table = createTable();
+    displayMainPage(table);
+
+    addEventWhenPutAStone();
+
+    users.updateCurrentUser();
+    board.updateNumberOfBlackStones();
+    board.updateNumberOfWhiteStones();
+    alert("ゲーム終了時の挙動を追加")
+}
+
+const resetGame = () => {
+    board.resetBoard([new Stone(), new Stone(), new Stone(), new Stone()]);
+    users.resetUsers(StonesBuilder.createStones(config.getNumberOfStones()));
     const table = createTable();
     displayMainPage(table);
 
@@ -511,8 +541,8 @@ const initialGame = () => {
     board.updateNumberOfWhiteStones();
 }
 
-displayTopPage();
-// initialGame();
+// displayTopPage();
+initialGame();
 
 
 // ゲーム終了を判断するロジック
