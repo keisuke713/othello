@@ -43,6 +43,9 @@ class Users{
         }
         this.currentUserIndex = 1;
     }
+    last(){
+        return this.users[this.users.length - 1];
+    }
 }
 
 class User{
@@ -143,17 +146,14 @@ class Board{
         this.numberOfBlackStonesId = numberOfBlackStonesId;
         this.numberOfWhiteStonesId = numberOfWhiteStonesId;
     }
-
-    // 既に石が置かれているかどうか
     ifAStoneIsOnTheCell(col, row){
         return this.getCell(col, row).isStoneOn();
     }
-    // getAmountOfStones(color){}
-    isThereAnyCellUserCanPutAStone(user){}
-    isAllCellPutAStone(){
+    notHasAnyCellUserCanPutStone(){
         for(let i=0; i<this.cells.length; i++){
             for(let j=0; j<this.cells[i].length; j++){
-                if(!(this.getCell(i, j).isStoneOn())) return false;
+                if(this.ifAStoneIsOnTheCell(i, j)) continue;
+                return false;
             }
         }
         return true;
@@ -178,6 +178,11 @@ class Board{
 
         document.getElementById(this.numberOfBlackStonesId).innerText = count;
     }
+    getNumberOfBlackStones(){
+        const ele = document.getElementById(this.numberOfBlackStonesId);
+        if(ele == null) return 0;
+        return Number(ele.innerText);
+    }
     updateNumberOfWhiteStones(){
         let count = 0;
         for(let i=0; i<this.cells.length; i++){
@@ -188,14 +193,14 @@ class Board{
 
         document.getElementById(this.numberOfWhiteStonesId).innerText = count;
     }
-    getNumberOfEachStones(){
-        return this.cells.length ** 2 / 2;
+    getNumberOfWhiteStones(){
+        const ele = document.getElementById(this.numberOfWhiteStonesId);
+        if(ele == null) return 0;
+        return Number(ele.innerText);
     }
-
     getNumberOfCellsPerEachRow(){
         return this.cells.length;
     }
-
     getCell(col, row){
         if(col < 0 || col >= this.getNumberOfCellsPerEachRow()) return;
         if(row < 0 || col >= this.getNumberOfCellsPerEachRow()) return;
@@ -209,6 +214,8 @@ class Board{
         }
         this.setInitialStones(stones);
     }
+    // AI用？
+    isThereAnyCellUserCanPutAStone(user){}
 }
 
 class Cell{
@@ -502,6 +509,19 @@ const addEventWhenPutAStone = () => {
     
             // ユーザーチェンジ
             users.updateCurrentUser();
+
+            // 盤のマス全てに石が置かれていたらゲーム終了
+            if(board.notHasAnyCellUserCanPutStone()){
+                setTimeout(() => {
+                    if(board.getNumberOfBlackStones() > board.getNumberOfWhiteStones()){
+                        alert(`${users.first.name}の勝利`);
+                    }else if(board.getNumberOfBlackStones() < board.getNumberOfWhiteStones()){
+                        alert(`${users.last().name}の勝利`);
+                    }else{
+                        alert("引き分け");
+                    }
+                }, 500);
+            }
         })
     }
 }
@@ -525,7 +545,6 @@ const initialGame = () => {
     users.updateCurrentUser();
     board.updateNumberOfBlackStones();
     board.updateNumberOfWhiteStones();
-    alert("ゲーム終了時の挙動を追加")
 }
 
 const resetGame = () => {
@@ -547,3 +566,4 @@ initialGame();
 
 // ゲーム終了を判断するロジック
 // AI対戦
+alert("vs Computer")
