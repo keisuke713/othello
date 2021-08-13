@@ -30,6 +30,7 @@ class Users{
     updateCurrentUser(){
         this.currentUserIndex = (this.currentUserIndex + 1) & 1;
         document.getElementById(this.currentPlayerId).innerText = this.currentUser().name;
+        document.getElementById(this.currentPlayerId).value = this.currentUser().name;
     }
     firstUser(){
         return this.users[0];
@@ -129,7 +130,15 @@ class User{
             row = addOrSubRow(row);
         }
     }
-    // getCellsUserCanPutAStone(board){}
+    getCellsUserCanPutAStone(board){
+        for(let i=0; i<board.cells.length; i++){
+            for(let j=0; j<board.cells[i].length; j++){
+                if(board.ifAStoneIsOnTheCell(i, j)) continue;
+                if(this.canPutAStoneOnTheCell(board, i, j)) return {col: i, row: j};
+            }
+        }
+        return {col: null, row: null};
+    }
     // AIだったらtrue
     AI(){
         return this.isAI == 1;
@@ -427,7 +436,7 @@ const displayMainPage = (table) => {
                 </div>
 
                 <div class="col-sm-12 col-md-12 col-lg-12 text-center">
-                    <p>Current player: <span id="currentPlayer"></span></p>
+                    <p>current player: <input id="currentPlayer" value="" disabled=true style="border:transparent; background:transparent; color:black; width:70px;" onchange='aiMove()'></p>
                 </div>
 
                 <div class="col-sm-12 col-md-12 col-lg-12 text-center">
@@ -435,7 +444,7 @@ const displayMainPage = (table) => {
                 </div>
 
                 <div class="col-sim-4 col-md-3 col-lg-2 text-center" style="margin:0 auto;">
-                    <button type="button" class="btn btn-primary col-12" onclick='users.updateCurrentUser();'>パス</button>
+                    <button type="button" id="pass" class="btn btn-primary col-12" onclick='users.updateCurrentUser();'>パス</button>
                 </div>
 
                 <div style="height:5px;"></div>
@@ -447,6 +456,68 @@ const displayMainPage = (table) => {
     `
 
     document.getElementById("tableWrapper").append(table);
+}
+
+function addEventWhenPutAStone(cell){
+    return new Promise((resolve) => {
+        const col = Number(cell.dataset.col);
+        const row = Number(cell.dataset.row);
+
+        if(board.ifAStoneIsOnTheCell(col, row)){
+            alert("既に石が置かれています");
+            return;
+        }
+
+        // 現在のユーザーがそこに石をおいて良いか確認
+        if(!users.currentUser().canPutAStoneOnTheCell(board, col, row)){
+            alert(`User: ${users.currentUser().name}はそのマスに石を置くことはできません!!!`);
+            return;
+        }
+
+        // 石を置く
+        users.currentUser().putAStone(board, col, row);
+
+        // ひっくり返す
+        users.currentUser().reverseStones(board, col, row);
+
+        // 点数更新
+        board.updateNumberOfBlackStones();
+        board.updateNumberOfWhiteStones();
+
+        // ユーザーチェンジ
+        // users.updateCurrentUser();
+        resolve();
+    }, 500)
+    .then(() => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                checkIfGameIsFinished(board.hasAnyCellUserCanPutStone(), board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
+                resolve();
+            }, 1000);
+        })
+    })
+    .then(() => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                users.updateCurrentUser();
+                alert(`${users.currentUser().name}のターンです`);
+                resolve();
+            }, 2000);
+        })
+    })
+    .then(() => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                if(users.currentUser().AI()){
+                    const map = users.currentUser().getCellsUserCanPutAStone(board);
+                    const ele = document.getElementById(`col${map["col"]}-row${map["row"]}`);
+                    if(ele != null) ele.click();
+                    else document.getElementById("pass").click();
+                }
+                resolve();
+            }, 1000);
+        })
+    })
 }
 
 // オセロ盤のhtml作成
@@ -467,6 +538,9 @@ const createTable = () => {
             td.setAttribute("id", `col${i}-row${j}`);
             td.dataset.col = i;
             td.dataset.row = j;
+            td.addEventListener("click", (e) => {
+                addEventWhenPutAStone(e.target)
+            })
 
             tr.append(td);
         }
@@ -487,51 +561,6 @@ const checkIfGameIsFinished = (hasAnyCellUserCanPutStone, numberOfBlackStones, n
     }
 }
 
-const addEventWhenPutAStone = () => {
-    let cells = document.getElementsByClassName("cell");
-    for(let cell of cells){
-        cell.addEventListener("click", () => {
-            const col = Number(cell.dataset.col);
-            const row = Number(cell.dataset.row);
-    
-            if(board.ifAStoneIsOnTheCell(col, row)){
-                alert("既に石が置かれています");
-                return;
-            }
-    
-            // 現在のユーザーがそこに石をおいて良いか確認
-            if(!users.currentUser().canPutAStoneOnTheCell(board, col, row)){
-                alert(`User: ${users.currentUser().name}はそのマスに石を置くことはできません!!!`);
-                return;
-            }
-    
-            // 石を置く
-            users.currentUser().putAStone(board, col, row);
-    
-            // ひっくり返す
-            users.currentUser().reverseStones(board, col, row);
-    
-            // 点数更新
-            board.updateNumberOfBlackStones();
-            board.updateNumberOfWhiteStones();
-    
-            // ユーザーチェンジ
-            users.updateCurrentUser();
-
-            // ゲームが続くかどうか判定
-            setTimeout(checkIfGameIsFinished, 1000, board.hasAnyCellUserCanPutStone(), board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
-
-            if(users.currentUser().AI()){
-                // 石を選ぶ
-                // ひっくり返す
-                // 点数更新
-                // ユーザーチェンジ
-                // ゲーム終了？
-            }
-        })
-    }
-}
-
 // 各インスタンス作成、ボードのHtml作成、石を2こずつ配置、石を置くときのイベント設定
 const initialGame = () => {
     // const user1Name = document.getElementById("input-user-name1").value;
@@ -546,8 +575,6 @@ const initialGame = () => {
     const table = createTable();
     displayMainPage(table);
 
-    addEventWhenPutAStone();
-
     users.updateCurrentUser();
     board.updateNumberOfBlackStones();
     board.updateNumberOfWhiteStones();
@@ -559,17 +586,29 @@ const resetGame = () => {
     const table = createTable();
     displayMainPage(table);
 
-    addEventWhenPutAStone();
+    // addEventWhenPutAStone();
 
     users.updateCurrentUser();
     board.updateNumberOfBlackStones();
     board.updateNumberOfWhiteStones();
 }
 
+const aiMove = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            if(users.currentUser().AI()){
+                const map = users.currentUser().getCellsUserCanPutAStone(board);
+                const ele = document.getElementById(`col${map["col"]}-row${map["row"]}`);
+                if(ele != null) ele.click();
+                else{
+                    alert(`${users.currentUser().name}はパスを選択しました`)
+                    document.getElementById("pass").click();
+                }
+            }
+            resolve();
+        }, 1000);
+    })
+}
+
 // displayTopPage();
 initialGame();
-
-
-// ゲーム終了を判断するロジック
-// AI対戦
-alert('AIの挙動を考える')
