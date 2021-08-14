@@ -29,7 +29,6 @@ class Users{
     // インデックスを更新
     updateCurrentUser(){
         this.currentUserIndex = (this.currentUserIndex + 1) & 1;
-        document.getElementById(this.currentPlayerId).innerText = this.currentUser().name;
         document.getElementById(this.currentPlayerId).value = this.currentUser().name;
     }
     firstUser(){
@@ -484,8 +483,6 @@ function addEventWhenPutAStone(cell){
         board.updateNumberOfBlackStones();
         board.updateNumberOfWhiteStones();
 
-        // ユーザーチェンジ
-        // users.updateCurrentUser();
         resolve();
     }, 500)
     .then(() => {
@@ -493,7 +490,7 @@ function addEventWhenPutAStone(cell){
             setTimeout(() => {
                 checkIfGameIsFinished(board.hasAnyCellUserCanPutStone(), board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
                 resolve();
-            }, 1000);
+            }, 500);
         })
     })
     .then(() => {
@@ -502,7 +499,7 @@ function addEventWhenPutAStone(cell){
                 users.updateCurrentUser();
                 alert(`${users.currentUser().name}のターンです`);
                 resolve();
-            }, 2000);
+            }, 500);
         })
     })
     .then(() => {
