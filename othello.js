@@ -435,7 +435,7 @@ const displayMainPage = (table) => {
                 </div>
 
                 <div class="col-sm-12 col-md-12 col-lg-12 text-center">
-                    <p>current player: <input id="currentPlayer" value="" disabled=true style="border:transparent; background:transparent; color:black; width:70px;" onchange='aiMove()'></p>
+                    <p>current player: <input id="currentPlayer" disabled="true", value="" style="border:transparent; background:transparent; color:black; width:70px;"></p>
                 </div>
 
                 <div class="col-sm-12 col-md-12 col-lg-12 text-center">
@@ -502,18 +502,23 @@ function addEventWhenPutAStone(cell){
             }, 500);
         })
     })
-    .then(() => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                if(users.currentUser().AI()){
-                    const map = users.currentUser().getCellsUserCanPutAStone(board);
-                    const ele = document.getElementById(`col${map["col"]}-row${map["row"]}`);
-                    if(ele != null) ele.click();
-                    else document.getElementById("pass").click();
+}
+
+const aiMove = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            if(!(users.currentUser().AI())){
+                console.log("test");
+                const map = users.currentUser().getCellsUserCanPutAStone(board);
+                const ele = document.getElementById(`col${map["col"]}-row${map["row"]}`);
+                if(ele != null) ele.click();
+                else{
+                    alert(`${users.currentUser().name}はパスを選択しました`)
+                    document.getElementById("pass").click();
                 }
-                resolve();
-            }, 1000);
-        })
+            }
+            resolve();
+        }, 1000);
     })
 }
 
@@ -583,28 +588,9 @@ const resetGame = () => {
     const table = createTable();
     displayMainPage(table);
 
-    // addEventWhenPutAStone();
-
     users.updateCurrentUser();
     board.updateNumberOfBlackStones();
     board.updateNumberOfWhiteStones();
-}
-
-const aiMove = () => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            if(users.currentUser().AI()){
-                const map = users.currentUser().getCellsUserCanPutAStone(board);
-                const ele = document.getElementById(`col${map["col"]}-row${map["row"]}`);
-                if(ele != null) ele.click();
-                else{
-                    alert(`${users.currentUser().name}はパスを選択しました`)
-                    document.getElementById("pass").click();
-                }
-            }
-            resolve();
-        }, 1000);
-    })
 }
 
 // displayTopPage();
