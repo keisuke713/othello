@@ -30,6 +30,9 @@ class Users{
     updateCurrentUser(){
         this.currentUserIndex = (this.currentUserIndex + 1) & 1;
         document.getElementById(this.currentPlayerId).value = this.currentUser().name;
+        
+        const event = new CustomEvent("valueChange");
+        document.getElementById(this.currentPlayerId).dispatchEvent(event);
     }
     firstUser(){
         return this.users[0];
@@ -507,8 +510,7 @@ function addEventWhenPutAStone(cell){
 const aiMove = () => {
     return new Promise((resolve) => {
         setTimeout(() => {
-            if(!(users.currentUser().AI())){
-                console.log("test");
+            if(users.currentUser().AI()){
                 const map = users.currentUser().getCellsUserCanPutAStone(board);
                 const ele = document.getElementById(`col${map["col"]}-row${map["row"]}`);
                 if(ele != null) ele.click();
@@ -518,7 +520,7 @@ const aiMove = () => {
                 }
             }
             resolve();
-        }, 1000);
+        }, 1500);
     })
 }
 
@@ -595,3 +597,6 @@ const resetGame = () => {
 
 // displayTopPage();
 initialGame();
+document.getElementById("currentPlayer").addEventListener("valueChange", ()=>{
+    aiMove()
+})
