@@ -19,7 +19,7 @@ let board       = null;
 class Users{
     constructor(firstUser, lastUser, currentPlayerId){
         this.users = [firstUser, lastUser];
-        this.currentUserIndex   = 1;
+        this.currentUserIndex   = 0;
         this.currentPlayerId = currentPlayerId;
     }
     // currentUserを更新
@@ -30,7 +30,8 @@ class Users{
     updateCurrentUser(){
         this.currentUserIndex = (this.currentUserIndex + 1) & 1;
         document.getElementById(this.currentPlayerId).value = this.currentUser().name;
-        
+        alert(`${this.currentUser().name}のターンです`);
+ 
         const event = new CustomEvent("valueChange");
         document.getElementById(this.currentPlayerId).dispatchEvent(event);
     }
@@ -45,6 +46,9 @@ class Users{
             user.stones = stones;
         }
         this.currentUserIndex = 1;
+    }
+    neitherOfUsersCanPutAStone(board){
+        return this.firstUser().isThereCellUserCanPutAStone(board) && this.lastUser().isThereCellUserCanPutAStone(board);
     }
 }
 
@@ -141,6 +145,10 @@ class User{
         }
         return {col: null, row: null};
     }
+    isThereCellUserCanPutAStone(board){
+        const cell = this.getCellsUserCanPutAStone(board);
+        return cell["col"] == null && cell["row"];
+    }
     // AIだったらtrue
     AI(){
         return this.isAI == 1;
@@ -221,8 +229,6 @@ class Board{
         }
         this.setInitialStones(stones);
     }
-    // AI用？
-    isThereAnyCellUserCanPutAStone(user){}
 }
 
 class Cell{
@@ -438,7 +444,7 @@ const displayMainPage = (table) => {
                 </div>
 
                 <div class="col-sm-12 col-md-12 col-lg-12 text-center">
-                    <p>current player: <input id="currentPlayer" disabled="true", value="" style="border:transparent; background:transparent; color:black; width:70px;"></p>
+                    <p>current player: <input id="currentPlayer" disabled="true", value=${users.firstUser().name} style="border:transparent; background:transparent; color:black; width:70px;"></p>
                 </div>
 
                 <div class="col-sm-12 col-md-12 col-lg-12 text-center">
@@ -491,7 +497,11 @@ function addEventWhenPutAStone(cell){
     .then(() => {
         return new Promise((resolve) => {
             setTimeout(() => {
-                checkIfGameIsFinished(board.hasAnyCellUserCanPutStone(), board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
+                if(checkIfGameIsFinished(board.hasAnyCellUserCanPutStone(), users.neitherOfUsersCanPutAStone(board))){
+                    displayWinner(board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
+                    // 終了の処理
+                    throw new Error();
+                }
                 resolve();
             }, 500);
         })
@@ -500,11 +510,11 @@ function addEventWhenPutAStone(cell){
         return new Promise((resolve) => {
             setTimeout(() => {
                 users.updateCurrentUser();
-                alert(`${users.currentUser().name}のターンです`);
                 resolve();
             }, 500);
         })
     })
+    .catch(alert);
 }
 
 const aiMove = () => {
@@ -553,9 +563,11 @@ const createTable = () => {
     return table;
 }
 
-const checkIfGameIsFinished = (hasAnyCellUserCanPutStone, numberOfBlackStones, numberOfWhiteStones) => {
-    if(hasAnyCellUserCanPutStone) return;
+const checkIfGameIsFinished = (hasAnyCellUserCanPutStone, neitherOfUsersCanPutAStone) => {
+    return !hasAnyCellUserCanPutStone || neitherOfUsersCanPutAStone
+}
 
+const displayWinner = (numberOfBlackStones, numberOfWhiteStones) => {
     if(numberOfBlackStones > numberOfWhiteStones){
         alert(`${users.firstUser().name}の勝利`);
     }else if(numberOfBlackStones < numberOfWhiteStones){
@@ -579,7 +591,6 @@ const initialGame = () => {
     const table = createTable();
     displayMainPage(table);
 
-    users.updateCurrentUser();
     board.updateNumberOfBlackStones();
     board.updateNumberOfWhiteStones();
 }
@@ -590,13 +601,19 @@ const resetGame = () => {
     const table = createTable();
     displayMainPage(table);
 
-    users.updateCurrentUser();
     board.updateNumberOfBlackStones();
     board.updateNumberOfWhiteStones();
 }
 
 // displayTopPage();
 initialGame();
+
 document.getElementById("currentPlayer").addEventListener("valueChange", ()=>{
+    // ここでユーザーどっちも置けない時のロジックを考える
+    if(checkIfGameIsFinished(board.hasAnyCellUserCanPutStone(), users.neitherOfUsersCanPutAStone(board))){
+        displayWinner(board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
+        // 終了の処理
+        throw new Error();
+    }
     aiMove()
 })
