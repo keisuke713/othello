@@ -188,16 +188,6 @@ class Board{
             }
         }
     }
-    updateNumberOfBlackStones(){
-        let count = 0;
-        for(let i=0; i<this.cells.length; i++){
-            for(let j=0; j<this.cells[i].length; j++){
-                if(this.getCell(i,j).isStoneBlack()) count++;
-            }
-        }
-
-        document.getElementById(this.numberOfBlackStonesId).innerText = count;
-    }
     getNumberOfBlackStones(){
         let count = 0;
         for(let i=0; i<this.cells.length; i++){
@@ -206,16 +196,6 @@ class Board{
             }
         }
         return count;
-    }
-    updateNumberOfWhiteStones(){
-        let count = 0;
-        for(let i=0; i<this.cells.length; i++){
-            for(let j=0; j<this.cells[i].length; j++){
-                if(this.getCell(i,j).isStoneWhite()) count++;
-            }
-        }
-
-        document.getElementById(this.numberOfWhiteStonesId).innerText = count;
     }
     getNumberOfWhiteStones(){
         let count = 0;
@@ -369,9 +349,9 @@ class Controller{
         users = UsersBuilder.createUsers("player1", 0, "player2", 1, config.currentPlayerId, StonesBuilder.createStones(config.getNumberOfStones()));
     
         View.renderMainPage();
-    
-        board.updateNumberOfBlackStones();
-        board.updateNumberOfWhiteStones();
+
+        View.updateNumberOfStones("numberOfBlackStones", board.getNumberOfBlackStones());
+        View.updateNumberOfStones("numberOfWhiteStones", board.getNumberOfWhiteStones());
     }
     static click(target){
         return new Promise((resolve) => {
@@ -397,8 +377,8 @@ class Controller{
             users.currentUser().reverseStones(board, col, row);
 
             // 点数更新
-            board.updateNumberOfBlackStones();
-            board.updateNumberOfWhiteStones();
+            View.updateNumberOfStones("numberOfBlackStones", board.getNumberOfBlackStones());
+            View.updateNumberOfStones("numberOfWhiteStones", board.getNumberOfWhiteStones());
 
             doesLastPlayerPutAStone = true;
 
@@ -579,6 +559,11 @@ class View{
         }
         return table;
     }
+    static updateNumberOfStones(id, numberOfStones){
+        const ele = document.getElementById(id);
+        if(ele == null) return;
+        ele.innerText = numberOfStones;
+    }
 }
 
 const aiMove = () => {
@@ -614,8 +599,8 @@ const resetGame = () => {
     const table = createTable();
     displayMainPage(table);
 
-    board.updateNumberOfBlackStones();
-    board.updateNumberOfWhiteStones();
+    View.updateNumberOfStones("numberOfBlackStones", board.getNumberOfBlackStones());
+    View.updateNumberOfStones("numberOfWhiteStones", board.getNumberOfWhiteStones());
 }
 
 // View.renderTopPage();
