@@ -31,11 +31,6 @@ class Users{
     // インデックスを更新
     updateCurrentUser(){
         this.currentUserIndex = (this.currentUserIndex + 1) & 1;
-        document.getElementById(this.currentPlayerId).value = this.currentUser().name;
-        alert(`${this.currentUser().name}のターンです`);
- 
-        const event = new CustomEvent("valueChange");
-        document.getElementById(this.currentPlayerId).dispatchEvent(event);
     }
     firstUser(){
         return this.users[0];
@@ -399,6 +394,7 @@ class Controller{
             return new Promise((resolve) => {
                 setTimeout(() => {
                     users.updateCurrentUser();
+                    View.updateCurrentUser("currentPlayer", users.currentUser().name);
                     resolve();
                 }, 500);
             })
@@ -409,6 +405,7 @@ class Controller{
         if(doesLastPlayerPutAStone){
             doesLastPlayerPutAStone = false;
             users.updateCurrentUser();
+            View.updateCurrentUser("currentPlayer", users.currentUser().name);
         }else{
             View.displayWinner(board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
             return;
@@ -572,6 +569,16 @@ class View{
         }else{
             alert("引き分け");
         }
+    }
+    static updateCurrentUser(currentPlayerId, currentUserName){
+        const ele = document.getElementById(currentPlayerId);
+        if(ele == null) return;
+
+        ele.innerText = currentUserName;
+        alert(`${currentUserName}のターンです`);
+
+        const event = new CustomEvent("valueChange");
+        ele.dispatchEvent(event);
     }
 }
 
