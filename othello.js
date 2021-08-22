@@ -199,9 +199,13 @@ class Board{
         document.getElementById(this.numberOfBlackStonesId).innerText = count;
     }
     getNumberOfBlackStones(){
-        const ele = document.getElementById(this.numberOfBlackStonesId);
-        if(ele == null) return 0;
-        return Number(ele.innerText);
+        let count = 0;
+        for(let i=0; i<this.cells.length; i++){
+            for(let j=0; j<this.cells[i].length; j++){
+                if(this.getCell(i,j).isStoneBlack()) count++;
+            }
+        }
+        return count;
     }
     updateNumberOfWhiteStones(){
         let count = 0;
@@ -214,9 +218,13 @@ class Board{
         document.getElementById(this.numberOfWhiteStonesId).innerText = count;
     }
     getNumberOfWhiteStones(){
-        const ele = document.getElementById(this.numberOfWhiteStonesId);
-        if(ele == null) return 0;
-        return Number(ele.innerText);
+        let count = 0;
+        for(let i=0; i<this.cells.length; i++){
+            for(let j=0; j<this.cells[i].length; j++){
+                if(this.getCell(i,j).isStoneWhite()) count++;
+            }
+        }
+        return count;
     }
     getNumberOfCellsPerEachRow(){
         return this.cells.length;
