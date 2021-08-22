@@ -388,7 +388,7 @@ class Controller{
             return new Promise((resolve) => {
                 setTimeout(() => {
                     if(!board.hasAnyCellUserCanPutStone()){
-                        displayWinner(board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
+                        View.displayWinner(board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
                         throw new Error();
                     }
                     resolve();
@@ -410,7 +410,7 @@ class Controller{
             doesLastPlayerPutAStone = false;
             users.updateCurrentUser();
         }else{
-            displayWinner(board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
+            View.displayWinner(board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
             return;
         }
     }
@@ -563,6 +563,15 @@ class View{
         const ele = document.getElementById(id);
         if(ele == null) return;
         ele.innerText = numberOfStones;
+    }
+    static displayWinner(numberOfBlackStones, numberOfWhiteStones){
+        if(numberOfBlackStones > numberOfWhiteStones){
+            alert(`${users.firstUser().name}の勝利`);
+        }else if(numberOfBlackStones < numberOfWhiteStones){
+            alert(`${users.lastUser().name}の勝利`);
+        }else{
+            alert("引き分け");
+        }
     }
 }
 
