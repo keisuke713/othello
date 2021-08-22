@@ -19,10 +19,9 @@ let users       = null;
 let board       = null;
 
 class Users{
-    constructor(firstUser, lastUser, currentPlayerId){
+    constructor(firstUser, lastUser){
         this.users = [firstUser, lastUser];
         this.currentUserIndex   = 0;
-        this.currentPlayerId = currentPlayerId;
     }
     // currentUserを更新
     currentUser(){
@@ -284,11 +283,10 @@ class Stone{
 }
 
 class UsersBuilder{
-    static createUsers(user1Name, user1Type, user2Name, user2Type, currentPlayerId, stones){
+    static createUsers(user1Name, user1Type, user2Name, user2Type, stones){
         return new Users(
             new User(user1Name, user1Type, stones, "black"), 
             new User(user2Name, user2Type, stones, "white"),
-            currentPlayerId
         );
     }
 }
@@ -331,13 +329,13 @@ class Controller{
         // const user2Type = Number(document.getElementById("input-user-type2").value);
     
         board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone(), new Stone(), new Stone(), new Stone()], config.numberOfBlackStonesId, config.numberOfWhiteStonesId)
-        // users = UsersBuilder.createUsers(user1Name, user1Type, user2Name, user2Type, config.currentPlayerId, StonesBuilder.createStones(config.getNumberOfStones()));
-        users = UsersBuilder.createUsers("player1", 0, "player2", 1, config.currentPlayerId, StonesBuilder.createStones(config.getNumberOfStones()));
+        // users = UsersBuilder.createUsers(user1Name, user1Type, user2Name, user2Type, StonesBuilder.createStones(config.getNumberOfStones()));
+        users = UsersBuilder.createUsers("player1", 0, "player2", 1, StonesBuilder.createStones(config.getNumberOfStones()));
     
         View.renderMainPage();
 
-        View.updateNumberOfStones("numberOfBlackStones", board.getNumberOfBlackStones());
-        View.updateNumberOfStones("numberOfWhiteStones", board.getNumberOfWhiteStones());
+        View.updateNumberOfStones(config.numberOfBlackStonesId, board.getNumberOfBlackStones());
+        View.updateNumberOfStones(config.numberOfWhiteStonesId, board.getNumberOfWhiteStones());
     }
     static click(target){
         return new Promise((resolve) => {
@@ -363,8 +361,8 @@ class Controller{
             users.currentUser().reverseStones(board, col, row);
 
             // 点数更新
-            View.updateNumberOfStones("numberOfBlackStones", board.getNumberOfBlackStones());
-            View.updateNumberOfStones("numberOfWhiteStones", board.getNumberOfWhiteStones());
+            View.updateNumberOfStones(config.numberOfBlackStonesId, board.getNumberOfBlackStones());
+            View.updateNumberOfStones(config.numberOfWhiteStonesId, board.getNumberOfWhiteStones());
 
             doesLastPlayerPutAStone = true;
 
@@ -385,7 +383,7 @@ class Controller{
             return new Promise((resolve) => {
                 setTimeout(() => {
                     users.updateCurrentUser();
-                    View.updateCurrentUser("currentPlayer", users.currentUser().name);
+                    View.updateCurrentUser(config.currentPlayerId, users.currentUser().name);
                     resolve();
                 }, 500);
             })
@@ -396,7 +394,7 @@ class Controller{
         if(doesLastPlayerPutAStone){
             doesLastPlayerPutAStone = false;
             users.updateCurrentUser();
-            View.updateCurrentUser("currentPlayer", users.currentUser().name);
+            View.updateCurrentUser(config.currentPlayerId, users.currentUser().name);
         }else{
             View.displayWinner(board.getNumberOfBlackStones(), board.getNumberOfWhiteStones());
             return;
@@ -565,7 +563,7 @@ class View{
         const ele = document.getElementById(currentPlayerId);
         if(ele == null) return;
 
-        ele.innerText = currentUserName;
+        ele.value = currentUserName;
         alert(`${currentUserName}のターンです`);
 
         const event = new CustomEvent("valueChange");
@@ -606,13 +604,13 @@ const resetGame = () => {
     const table = createTable();
     displayMainPage(table);
 
-    View.updateNumberOfStones("numberOfBlackStones", board.getNumberOfBlackStones());
-    View.updateNumberOfStones("numberOfWhiteStones", board.getNumberOfWhiteStones());
+    View.updateNumberOfStones(config.numberOfBlackStonesId, board.getNumberOfBlackStones());
+    View.updateNumberOfStones(config.numberOfWhiteStonesId, board.getNumberOfWhiteStones());
 }
 
 // View.renderTopPage();
 Controller.initialGame();
 
-document.getElementById("currentPlayer").addEventListener("valueChange", ()=>{
+document.getElementById(config.currentPlayerId).addEventListener("valueChange", ()=>{
     aiMove()
 })
