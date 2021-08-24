@@ -167,7 +167,6 @@ class Board{
             for(let j = 0; j < this.getNumberOfCellsPerEachRow(); j++){
                 if(i == this.getNumberOfCellsPerEachRow() / 2 - 1 && j == this.getNumberOfCellsPerEachRow() / 2 - 1) this.getCell(i, j).putAStone(stones.pop(), "black");
                 if(i == this.getNumberOfCellsPerEachRow() / 2 && j == this.getNumberOfCellsPerEachRow() / 2) this.getCell(i, j).putAStone(stones.pop(), "black");
-                // if(i == this.getNumberOfCellsPerEachRow() / 2 - 1 && j == this.getNumberOfCellsPerEachRow() / 2) this.getCell(i, j).putAStone(stones.pop(), "black");
                 if(i == this.getNumberOfCellsPerEachRow() / 2 - 1 && j == this.getNumberOfCellsPerEachRow() / 2) this.getCell(i, j).putAStone(stones.pop(), "white");
                 if(i == this.getNumberOfCellsPerEachRow() / 2 && j == this.getNumberOfCellsPerEachRow() / 2 - 1) this.getCell(i, j).putAStone(stones.pop(), "white");
             }
@@ -232,20 +231,9 @@ class Cell{
     putAStone(stone, color){
         stone.setColorAndImage(color);
         this.stone = stone;
-
-        const cell = document.getElementById(`col${this.col}-row${this.row}`);
-
-        if(cell == null) return;
-
-        const img = document.createElement("img");
-        img.src = stone.image;
-        cell.append(img);
     }
     reverseStone(){
         this.stone.reverse()
-
-        const img = document.getElementById(`col${this.col}-row${this.row}`).querySelector("img");
-        img.src   = this.stone.image;
     }
 }
 
@@ -359,6 +347,8 @@ class Controller{
 
             // ひっくり返す
             users.currentUser().reverseStones(board, col, row);
+
+            View.updateBoard(board);
 
             // 点数更新
             View.updateNumberOfStones(config.numberOfBlackStonesId, board.getNumberOfBlackStones());
@@ -529,6 +519,7 @@ class View{
                     const img = document.createElement("img");
                     img.src = board.getCell(i,j).stone.image;
                     td.append(img);
+                    td.dataset.color = board.getCell(i,j).stone.color;
                 }
     
                 td.classList.add("cell");
@@ -568,6 +559,28 @@ class View{
 
         const event = new CustomEvent("valueChange");
         ele.dispatchEvent(event);
+    }
+    static updateBoard(board){
+        for(let i=0; i<board.cells.length; i++){
+            for(let j=0; j<board.cells[i].length; j++){
+                const cell = board.getCell(i,j);
+                if(!cell.isStoneOn()) continue;
+
+                const ele  = document.getElementById(`col${i}-row${j}`);
+
+                const childNode = ele.firstChild;
+
+                if(childNode == null){
+                    const img = document.createElement("img");
+                    img.src = cell.stone.image;
+                    ele.append(img);
+                    ele.dataset.color = cell.stone.color;
+                }else{
+                    childNode.src = cell.stone.image;
+                    ele.dataset.color = cell.stone.color;
+                }
+            }
+        }
     }
 }
 
