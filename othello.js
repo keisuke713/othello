@@ -41,7 +41,7 @@ class Users{
         for(let user of this.users){
             user.stones = stones;
         }
-        this.currentUserIndex = 1;
+        this.currentUserIndex = 0;
     }
 }
 
@@ -137,6 +137,10 @@ class User{
             }
         }
         return {col: null, row: null};
+    }
+    canPutAStone(board){
+        const cell = this.getCellsUserCanPutAStone(board);
+        return cell["col"] != null && cell["row"] != null
     }
     // AIだったらtrue
     AI(){
@@ -381,6 +385,7 @@ class Controller{
         .catch();
     }
     static pass(){
+        alert(`${users.currentUser().name}は石を置けるマスがないのでパスします。`)
         if(doesLastPlayerPutAStone){
             doesLastPlayerPutAStone = false;
             users.updateCurrentUser();
@@ -390,7 +395,6 @@ class Controller{
             return;
         }
     }
-    static resetGame(){}
 }
 
 class View{
@@ -479,31 +483,21 @@ class View{
         config.target.innerHTML =
         `
         <div class="col-sm-12 col-md-12 col-lg-12">
-                    <div class="col-sm-12 col-md-12 col-lg-12 text-center">
-                        <h2>オセロゲーム</h2>
-                    </div>
-    
-                    <div class="col-sm-12 col-md-12 col-lg-12 text-center" id="tableWrapper">
-                    </div>
-    
-                    <div class="col-sm-12 col-md-12 col-lg-12 text-center">
-                        <p>current player: <input id="currentPlayer" disabled="true", value=${users.firstUser().name} style="border:transparent; background:transparent; color:black; width:70px;"></p>
-                    </div>
-    
-                    <div class="col-sm-12 col-md-12 col-lg-12 text-center">
-                        <p><span>${users.firstUser().name}:</span> <span id="numberOfBlackStones"></span>&nbsp;<span>${users.lastUser().name}:</span> <span id="numberOfWhiteStones"></span></p>
-                    </div>
-    
-                    <div class="col-sim-4 col-md-3 col-lg-2 text-center" style="margin:0 auto;">
-                        <button type="button" id="pass" class="btn btn-primary col-12" onclick='Controller.pass()'>パス</button>
-                    </div>
-    
-                    <div style="height:5px;"></div>
-    
-                    <div class="col-sim-4 col-md-3 col-lg-2 text-center" style="margin:0 auto;">
-                        <button type="button" class="btn btn-primary col-12" onclick='resetGame();'>リスタート</button>
-                    </div>
-                </div>
+            <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                <h2>オセロゲーム</h2>
+            </div>
+
+            <div class="col-sm-12 col-md-12 col-lg-12 text-center" id="tableWrapper">
+            </div>
+
+            <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                <p>current player: <input id="currentPlayer" disabled="true", value=${users.firstUser().name} style="border:transparent; background:transparent; color:black; width:70px;"></p>
+            </div>
+
+            <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                <p><span>${users.firstUser().name}:</span> <span id="numberOfBlackStones"></span>&nbsp;<span>${users.lastUser().name}:</span> <span id="numberOfWhiteStones"></span></p>
+            </div>
+        </div>
         `
     
         document.getElementById("tableWrapper").append(this.createTable());
@@ -591,39 +585,17 @@ const aiMove = () => {
                 const map = users.currentUser().getCellsUserCanPutAStone(board);
                 const ele = document.getElementById(`col${map["col"]}-row${map["row"]}`);
                 if(ele != null) ele.click();
-                else{
-                    alert(`${users.currentUser().name}はパスを選択しました`)
-                    document.getElementById("pass").click();
-                }
+                else Controller.pass();
             }
             resolve();
         }, 1500);
     })
 }
 
-const displayWinner = (numberOfBlackStones, numberOfWhiteStones) => {
-    if(numberOfBlackStones > numberOfWhiteStones){
-        alert(`${users.firstUser().name}の勝利`);
-    }else if(numberOfBlackStones < numberOfWhiteStones){
-        alert(`${users.lastUser().name}の勝利`);
-    }else{
-        alert("引き分け");
-    }
-}
-
-const resetGame = () => {
-    board.resetBoard([new Stone(), new Stone(), new Stone(), new Stone()]);
-    users.resetUsers(StonesBuilder.createStones(config.getNumberOfStones()));
-    const table = createTable();
-    displayMainPage(table);
-
-    View.updateNumberOfStones(config.numberOfBlackStonesId, board.getNumberOfBlackStones());
-    View.updateNumberOfStones(config.numberOfWhiteStonesId, board.getNumberOfWhiteStones());
-}
-
 // View.renderTopPage();
 Controller.initialGame();
 
 document.getElementById(config.currentPlayerId).addEventListener("valueChange", ()=>{
+    if(!users.currentUser().canPutAStone(board)) Controller.pass();
     aiMove()
 })
