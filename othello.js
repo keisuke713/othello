@@ -11,7 +11,7 @@ class Config{
     }
 }
 
-const config = new Config(document.getElementById("target"), 4, "numberOfBlackStones", "numberOfWhiteStones", "currentPlayer");
+const config = new Config(document.getElementById("target"), 8, "numberOfBlackStones", "numberOfWhiteStones", "currentPlayer");
 
 let doesLastPlayerPutAStone = false;
 
@@ -325,7 +325,6 @@ class Controller{
     
         board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone(), new Stone(), new Stone(), new Stone()], config.numberOfBlackStonesId, config.numberOfWhiteStonesId)
         users = UsersBuilder.createUsers(user1Name, user1Type, user2Name, user2Type, StonesBuilder.createStones(config.getNumberOfStones()));
-        // users = UsersBuilder.createUsers("player1", 0, "player2", 1, StonesBuilder.createStones(config.getNumberOfStones()));
     
         View.renderMainPage();
 
@@ -419,7 +418,7 @@ class View{
                 </div>
                 <div style="height:5px;"></div>
                 <div class="col-sm-6 col-md-4 col-lg-2 text-center" style="margin:0 auto;">
-                    <button type="button" class="btn btn-primary col-12" onclick='View.registerAIRegisterPage();return false;'>AI対戦</button>
+                    <button type="button" class="btn btn-primary col-12" onclick='View.renderAIRegisterPage();return false;'>AI対戦</button>
                 </div>
             </div>
         </div>
