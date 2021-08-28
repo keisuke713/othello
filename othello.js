@@ -314,17 +314,25 @@ class StonesBuilder{
 }
 
 class Controller{
+    static main(){
+        View.renderTopPage();
+    }
     static initialGame(){
-        // const user1Name = document.getElementById("input-user-name1").value;
-        // const user1Type = Number(document.getElementById("input-user-type1").value);
-        // const user2Name = document.getElementById("input-user-name2").value;
-        // const user2Type = Number(document.getElementById("input-user-type2").value);
+        const user1Name = document.getElementById("input-user-name1").value;
+        const user1Type = Number(document.getElementById("input-user-type1").value);
+        const user2Name = document.getElementById("input-user-name2").value;
+        const user2Type = Number(document.getElementById("input-user-type2").value);
     
         board = BoardBuilder.createBoard(CellsBuilder.createCells(), [new Stone(), new Stone(), new Stone(), new Stone()], config.numberOfBlackStonesId, config.numberOfWhiteStonesId)
-        // users = UsersBuilder.createUsers(user1Name, user1Type, user2Name, user2Type, StonesBuilder.createStones(config.getNumberOfStones()));
-        users = UsersBuilder.createUsers("player1", 0, "player2", 1, StonesBuilder.createStones(config.getNumberOfStones()));
+        users = UsersBuilder.createUsers(user1Name, user1Type, user2Name, user2Type, StonesBuilder.createStones(config.getNumberOfStones()));
+        // users = UsersBuilder.createUsers("player1", 0, "player2", 1, StonesBuilder.createStones(config.getNumberOfStones()));
     
         View.renderMainPage();
+
+        document.getElementById(config.currentPlayerId).addEventListener("valueChange", ()=>{
+            if(!users.currentUser().canPutAStone(board)) Controller.pass();
+            aiMove()
+        })
 
         View.updateNumberOfStones(config.numberOfBlackStonesId, board.getNumberOfBlackStones());
         View.updateNumberOfStones(config.numberOfWhiteStonesId, board.getNumberOfWhiteStones());
@@ -592,10 +600,4 @@ const aiMove = () => {
     })
 }
 
-// View.renderTopPage();
-Controller.initialGame();
-
-document.getElementById(config.currentPlayerId).addEventListener("valueChange", ()=>{
-    if(!users.currentUser().canPutAStone(board)) Controller.pass();
-    aiMove()
-})
+Controller.main();
