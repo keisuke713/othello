@@ -418,7 +418,7 @@ class View{
                 </div>
                 <div style="height:5px;"></div>
                 <div class="col-sm-6 col-md-4 col-lg-2 text-center" style="margin:0 auto;">
-                    <button type="button" class="btn btn-primary col-12" onclick='View.renderAIRegisterPage();return false;'>AI対戦</button>
+                    <button type="button" class="btn btn-primary col-12" onclick='View.renderAIRegisterPage();return false;'>コンピュータ対戦</button>
                 </div>
             </div>
         </div>
@@ -470,7 +470,7 @@ class View{
                             <input type="hidden" name="userType1" id="input-user-type1" value=0>
                         </div>
                         <div class="form-group">
-                            <input type="hidden" name="userName2" class="form-control" id="input-user-name2" placeholder="ユーザーネーム" value="AI">
+                            <input type="hidden" name="userName2" class="form-control" id="input-user-name2" placeholder="ユーザーネーム" value="コンピュータ">
                             <input type="hidden" name="userType2" id="input-user-type2" value=1>
                         </div>
                         <div class="col-sm-6 col-md-4 col-lg-2 text-center" style="margin:0 auto;">
