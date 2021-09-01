@@ -600,3 +600,4 @@ const aiMove = () => {
 }
 
 Controller.main();
+alert("test");
