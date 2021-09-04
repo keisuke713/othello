@@ -1,4 +1,4 @@
-alert("test")
+console.log("test")
 class Config{
     constructor(target, numberOfCellsPerRow, numberOfBlackStonesId, numberOfWhiteStonesId, currentPlayerId){
         this.target        　　　　 = target;
