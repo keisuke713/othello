@@ -599,4 +599,4 @@ const aiMove = () => {
     })
 }
 
-Controller.main();
+// Controller.main();
