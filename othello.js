@@ -1,3 +1,4 @@
+alert("tst");
 class Config{
     constructor(target, numberOfCellsPerRow, numberOfBlackStonesId, numberOfWhiteStonesId, currentPlayerId){
         this.target        　　　　 = target;
@@ -599,5 +600,4 @@ const aiMove = () => {
     })
 }
 
-alert("test");
 Controller.main();
