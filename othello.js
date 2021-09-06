@@ -498,7 +498,7 @@ class View{
             </div>
 
             <div class="col-sm-12 col-md-12 col-lg-12 text-center">
-                <p>current player: <input id="currentPlayer" disabled="true", value=${users.firstUser().name} style="border:transparent; background:transparent; color:black; width:70px;"></p>
+                <p>current player: <span id="currentPlayer" ">${users.firstUser().name}</p>
             </div>
 
             <div class="col-sm-12 col-md-12 col-lg-12 text-center">
@@ -555,7 +555,7 @@ class View{
         const ele = document.getElementById(currentPlayerId);
         if(ele == null) return;
 
-        ele.value = currentUserName;
+        ele.innerText = currentUserName;
         alert(`${currentUserName}のターンです`);
 
         const event = new CustomEvent("valueChange");
@@ -599,5 +599,4 @@ const aiMove = () => {
     })
 }
 
-console.log("test");
 Controller.main();
