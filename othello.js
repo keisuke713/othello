@@ -599,4 +599,5 @@ const aiMove = () => {
     })
 }
 
+console.log("test");
 Controller.main();
